@@ -2,7 +2,9 @@ package com.kv.jc.http.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.kv.jc.http.json.Entity;
@@ -119,10 +121,14 @@ public final class ServiceController {
 
 	private void updateEntities(final Game game) {
 		final List<Entity> entities = new ArrayList<>();
-		game.getSubmarines().forEach(submarine -> entities.addAll(getSonar(submarine)));
+		final Set<Long> ownSubmarineIds = new HashSet<>();
+		game.getSubmarines().forEach(submarine -> {
+			entities.addAll(getSonar(submarine));
+			ownSubmarineIds.add(submarine.getId());
+		});
 		game.getEnemies().clear();
 		game.getTorpedos().clear();
-		game.getEnemies().addAll(entities.stream().filter(entity -> entity.getType() == EntityType.Submarine).collect(Collectors.toList()));
+		game.getEnemies().addAll(entities.stream().filter(entity -> entity.getType() == EntityType.Submarine && !ownSubmarineIds.contains(entity.getId())).collect(Collectors.toList()));
 		game.getTorpedos().addAll(entities.stream().filter(entity -> entity.getType() == EntityType.Torpedo).collect(Collectors.toList()));
 	}
 
