@@ -10,6 +10,7 @@ import com.kv.jc.engine.Shoot;
 import com.kv.jc.http.json.Game;
 import com.kv.jc.http.json.GameStatus;
 import com.kv.jc.http.service.ServiceController;
+import com.kv.jc.ui.GameFrame;
 
 public class Main {
 
@@ -23,7 +24,8 @@ public class Main {
 		boolean run = true;
 		long sleepTime = 100;
 		long gameId = -1;
-    Game game = null;
+		Game game = null;
+    	GameFrame frame = null;
         
 		while (run) {
           switch (status) {
@@ -60,6 +62,10 @@ public class Main {
             status = game.getStatus();
             if (status != GameStatus.RUNNING) {
               break;
+            }
+            if (frame == null) {
+            	frame = new GameFrame(game);
+            	controller.addCallback(frame);
             }
             
             // print game state
