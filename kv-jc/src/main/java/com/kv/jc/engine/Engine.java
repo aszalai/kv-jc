@@ -105,4 +105,15 @@ public class Engine {
     }
     return new Shoot(submarine, angle);
   }
+  
+  public static Position getEndPos(Game game, Position center, double angle) {
+    double x = game.getMapConfiguration().getSubmarineSize();
+    double y = 0.0;
+    double angleRad = angle / 180.0 * Math.PI;
+    Position result = new Position();
+    result.setX((x * Math.cos(angleRad)) - (y * Math.sin(angleRad)) + center.getX());
+    result.setY((x * Math.sin(angleRad)) + (y * Math.cos(angleRad)) + center.getY());
+    return result;
+  }
 }
+ 
