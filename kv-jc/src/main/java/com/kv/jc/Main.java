@@ -56,14 +56,13 @@ public class Main {
             break;
           case RUNNING:
             // get game state, send radar actions
-            game = controller.gameInfo(gameId);
+            controller.updateState(game);
             status = game.getStatus();
             if (status != GameStatus.RUNNING) {
               break;
             }
             
             // print game state
-            controller.updateState(game);
             System.out.println(game);
             
             // send actions

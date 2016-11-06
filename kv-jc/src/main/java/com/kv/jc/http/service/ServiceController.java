@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import com.kv.jc.http.json.Entity;
 import com.kv.jc.http.json.EntityType;
 import com.kv.jc.http.json.Game;
+import com.kv.jc.http.json.GameStatus;
 import com.kv.jc.http.json.Submarine;
 import com.kv.jc.http.json.request.MoveRequest;
 import com.kv.jc.http.json.request.ShootRequest;
@@ -29,7 +30,8 @@ public final class ServiceController {
 	private SonarService sonarService;
 
 	private ServiceController(String baseUrl) {
-		Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(GsonConverterFactory.create()).build();
+		Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(GsonConverterFactory.create())
+				.build();
 		gameService = retrofit.create(GameService.class);
 		submarineService = retrofit.create(SubmarineService.class);
 		sonarService = retrofit.create(SonarService.class);
@@ -65,38 +67,49 @@ public final class ServiceController {
 	public Long createGame() {
 		return call(gameService.createGame()).getId();
 	}
-	
+
 	public void joinGame(long gameId) {
-	  call(gameService.joinGame(gameId));
+		call(gameService.joinGame(gameId));
 	}
 
 	public Game gameInfo(long gameId) {
 		return call(gameService.gameInfo(gameId)).getGame();
 	}
-	
+
+	private void updateGameInfo(final Game game) {
+		Game refreshedGame = gameInfo(game.getId());
+		game.setRound(refreshedGame.getRound());
+		game.setScores(refreshedGame.getScores());
+		game.setMapConfiguration(refreshedGame.getMapConfiguration());
+		game.setStatus(refreshedGame.getStatus());
+	}
+
 	public void updateState(final Game game) {
-	  updateSumbarines(game);
-	  updateEntities(game);
+		updateGameInfo(game);
+		if (game.getStatus() == GameStatus.RUNNING) {
+			updateSumbarines(game);
+			updateEntities(game);
+		}
 	}
 
 	private void updateSumbarines(final Game game) {
-      List<Submarine> submarines = getSubmarines(game);
-      submarines.forEach(submarine -> submarine.setGameId(game.getId()));
-      game.getSubmarines().clear();
-      game.getSubmarines().addAll(submarines);
-    }
+		List<Submarine> submarines = getSubmarines(game);
+		submarines.forEach(submarine -> submarine.setGameId(game.getId()));
+		game.getSubmarines().clear();
+		game.getSubmarines().addAll(submarines);
+	}
 
 	public void move(Submarine submarine, Double speed, Double turn) {
-      MoveRequest request = new MoveRequest(speed, turn);
-      call(submarineService.move(submarine.getGameId(), submarine.getId(), request));
-    }
+		MoveRequest request = new MoveRequest(speed, turn);
+		call(submarineService.move(submarine.getGameId(), submarine.getId(), request));
+	}
 
-    public void shoot(Submarine submarine, Double angle) {
-      ShootRequest request = new ShootRequest(angle);
-      call(submarineService.shoot(submarine.getGameId(), submarine.getId(), request));
-    }
+	public void shoot(Submarine submarine, Double angle) {
+		ShootRequest request = new ShootRequest(angle);
+		call(submarineService.shoot(submarine.getGameId(), submarine.getId(), request));
+	}
 
-    private List<Submarine> getSubmarines(Game game) {
+	private List<Submarine> getSubmarines(Game game) {
 		return call(submarineService.getSubmarines(game.getId())).getSubmarines();
 	}
 
