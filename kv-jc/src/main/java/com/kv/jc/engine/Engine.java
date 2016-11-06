@@ -61,13 +61,18 @@ public class Engine {
   }
   
   public static Shoot getShoot(Game game, Target target, Submarine submarine) {
+    if (submarine.getTorpedoCooldown() > 0) {
+      return null;
+    }
     MapConfiguration mapConfig = game.getMapConfiguration();
     double shootDistance = mapConfig.getTorpedoRange() * mapConfig.getTorpedoSpeed();
     double distanceToTarget = getDistance(submarine.getPosition(), target.position);
     
+    System.out.println("DISTANCE: " + distanceToTarget);
     // speed per direction
-    double dX = Math.cos(target.angle);
-    double dY = Math.sin(target.angle);
+    double dX = Math.cos(target.angle / 180.0 * Math.PI) * target.velocity;
+    double dY = Math.sin(target.angle / 180.0 * Math.PI) * target.velocity;
+    System.out.println("SPEED DIR: " + dX + "\t" + dY);
     
     // new position in next cycle
     Position p = new Position();
@@ -76,15 +81,23 @@ public class Engine {
     
     // position distance per cycle
     double deltaDist = getDistance(p, submarine.getPosition()) - distanceToTarget;
+    System.out.println("DELTA DIST: " + deltaDist);
     // rounds to reach target
     double t = distanceToTarget / (mapConfig.getTorpedoSpeed() - deltaDist);
+    System.out.println("CYCLE TO REACH: " + t);
     // angle of shoot
+    p.setX(target.position.getX() + (dX * t));
+    p.setY(target.position.getY() + (dY * t));
+    System.out.println("COLLUSION: " + p.getX() + "\t" + p.getY());
+    double angle = Math.atan2(p.getY() - submarine.getPosition().getY(), p.getX() - submarine.getPosition().getX());
+    angle /= Math.PI / 180.0;
+    /*
     double angle = target.velocity * t * target.velocity * t;
     angle -= distanceToTarget * distanceToTarget;
     angle -= mapConfig.getTorpedoSpeed() * t * mapConfig.getTorpedoSpeed() * t;
     angle /= 2.0 * distanceToTarget * mapConfig.getTorpedoSpeed() * t;
-    angle = Math.acos(angle);
-    
+    angle = Math.acos(angle);*/
+    System.out.println("ANGLE: " + angle);
     // check explosion distance
     if (mapConfig.getTorpedoSpeed() * t <= mapConfig.getTorpedoExplosionRadius() ||
         mapConfig.getTorpedoSpeed() * t > shootDistance * 0.9) {
