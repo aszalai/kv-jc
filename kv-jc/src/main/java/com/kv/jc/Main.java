@@ -26,6 +26,8 @@ public class Main {
 		long gameId = -1;
 		Game game = null;
     	GameFrame frame = null;
+      
+    int round = -1;
         
 		while (run) {
           switch (status) {
@@ -74,14 +76,18 @@ public class Main {
             // send actions
             List<Action> actions = Engine.getActions(game);
             // TODO: do not make multiple actions in the same round
-            for (Action a : actions) {
-              System.out.println("ACTION: " + a);
-              if (a instanceof Move) {
-                controller.move(a.submarine, ((Move)a).velocity, a.angle);
-              } else if (a instanceof Shoot) {
-                controller.shoot(a.submarine, a.angle);
+            if (game.getRound() != round) {
+              for (Action a : actions) {
+                System.out.println("ACTION: " + a);
+                if (a instanceof Move) {
+                  controller.move(a.submarine, ((Move)a).velocity, a.angle);
+                } else if (a instanceof Shoot) {
+                  controller.shoot(a.submarine, a.angle);
+                }
               }
             }
+            
+            round = game.getRound();
             break;
           case ENDED: 
             run = false;
