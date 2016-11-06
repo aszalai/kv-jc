@@ -125,6 +125,9 @@ public final class ServiceController {
 	}
 
 	public void shoot(Submarine submarine, Double angle) {
+    if (submarine.getTorpedoCooldown() > 0) {
+      return;
+    }
 		ShootRequest request = new ShootRequest(angle);
 		call(submarineService.shoot(submarine.getGameId(), submarine.getId(), request));
 		callbacks.forEach(callback -> {
