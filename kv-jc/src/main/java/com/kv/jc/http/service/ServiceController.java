@@ -27,6 +27,8 @@ public final class ServiceController {
 		return new ServiceController(baseUrl);
 	}
 
+	private List<ServiceCallback> callbacks = new ArrayList<>();
+
 	private GameService gameService;
 	private SubmarineService submarineService;
 	private SonarService sonarService;
@@ -62,6 +64,12 @@ public final class ServiceController {
 		return response;
 	}
 
+	public void addCallback(ServiceCallback serviceCallback) {
+		if (serviceCallback != null) {
+			callbacks.add(serviceCallback);
+		}
+	}
+
 	public List<Integer> getGames() {
 		return call(gameService.getGameList()).getGames();
 	}
@@ -92,6 +100,11 @@ public final class ServiceController {
 			updateSumbarines(game);
 			updateEntities(game);
 		}
+		callbacks.forEach(callback -> {
+			if (game.getId() == callback.getGameId()) {
+				callback.onUpdateState();
+			}
+		});
 	}
 
 	private void updateSumbarines(final Game game) {
@@ -104,11 +117,21 @@ public final class ServiceController {
 	public void move(Submarine submarine, Double speed, Double turn) {
 		MoveRequest request = new MoveRequest(speed, turn);
 		call(submarineService.move(submarine.getGameId(), submarine.getId(), request));
+		callbacks.forEach(callback -> {
+			if (submarine.getGameId() == callback.getGameId()) {
+				callback.onMove(submarine, speed, turn);
+			}
+		});
 	}
 
 	public void shoot(Submarine submarine, Double angle) {
 		ShootRequest request = new ShootRequest(angle);
 		call(submarineService.shoot(submarine.getGameId(), submarine.getId(), request));
+		callbacks.forEach(callback -> {
+			if (submarine.getGameId() == callback.getGameId()) {
+				callback.onShoot(submarine, angle);
+			}
+		});
 	}
 
 	private List<Submarine> getSubmarines(Game game) {
