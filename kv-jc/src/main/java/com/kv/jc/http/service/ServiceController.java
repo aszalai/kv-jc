@@ -77,10 +77,6 @@ public final class ServiceController {
 	public List<Submarine> getSubmarines(Game game) {
 		return call(submarineService.getSubmarines(game.getId())).getSubmarines();
 	}
-	
-	public void joinGame(long gameId) {
-	  call(gameService.joinGame(gameId));
-	}
 
 	public void updateSumbarines(final Game game) {
 		List<Submarine> submarines = getSubmarines(game);
