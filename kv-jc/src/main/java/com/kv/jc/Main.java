@@ -23,7 +23,7 @@ public class Main {
 		boolean run = true;
 		long sleepTime = 100;
 		long gameId = -1;
-        Game game = null;
+    Game game = null;
         
 		while (run) {
           switch (status) {

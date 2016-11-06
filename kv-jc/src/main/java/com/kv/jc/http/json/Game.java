@@ -1,5 +1,6 @@
 package com.kv.jc.http.json;
 
+import java.util.LinkedList;
 import java.util.List;
 
 public class Game {
@@ -16,6 +17,12 @@ public class Game {
 	private transient List<Submarine> submarines;
 	private transient List<Entity> enemies;
 	private transient List<Entity> torpedos;
+  
+  public Game () {
+    submarines = new LinkedList<Submarine>();
+    enemies = new LinkedList<Entity>();
+    torpedos = new LinkedList<Entity>();
+  }
 
 	public Long getId() {
 		return id;
