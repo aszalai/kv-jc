@@ -58,5 +58,9 @@ public final class ServiceController {
 	public Game gameInfo(long gameId) {
 	  return call(gameService.gameInfo(gameId)).getGame();
 	}
+	
+	public void joinGame(long gameId) {
+	  call(gameService.joinGame(gameId));
+	}
 
 }
