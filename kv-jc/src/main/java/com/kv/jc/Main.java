@@ -58,7 +58,15 @@ public class Main {
             // get game state, send radar actions
             game = controller.gameInfo(gameId);
             status = game.getStatus();
+            if (status != GameStatus.RUNNING) {
+              break;
+            }
+            
+            // print game state
             controller.updateState(game);
+            System.out.println(game);
+            
+            // send actions
             List<Action> actions = Engine.getActions(game);
             for (Action a : actions) {
               if (a instanceof Move) {
@@ -67,8 +75,6 @@ public class Main {
                 controller.shoot(a.submarine, a.angle);
               }
             }
-            System.out.println(game);
-            // send actions
             break;
           case ENDED: 
             run = false;
