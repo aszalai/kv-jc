@@ -7,16 +7,16 @@ import com.google.common.collect.ImmutableMap;
 public abstract class AbstractResponse {
 
 	protected static final Map<Integer, String> ERROR_MESSAGES = ImmutableMap.<Integer, String> builder()
-			.put(1, "Nincs a csapat meghívva")
-			.put(2, "Folyamatban lévõ játék")
-			.put(3, "Nem létezõ gameId")
-			.put(4, "Nincs a csapatnak jogosultsága a megadott tengeralattjárót kezelni")
-			.put(7, "A torpedó cooldownon van")
-			.put(8, "Újratöltõdés elõtti hívás")
-			.put(9, "A játék nincs folyamatban")
-			.put(10, "A megadott hajó már mozgott ebben a körben")
-			.put(11, "Túl nagy gyorsulás")
-			.put(12, "Túl nagy kanyarodás")
+			.put(1, "Nincs a csapat meghivva")
+			.put(2, "Folyamatban levo jatek")
+			.put(3, "Nem letezo gameId")
+			.put(4, "Nincs a csapatnak jogosultsaga a megadott tengeralattjarot kezelni")
+			.put(7, "A torpedo cooldownon van")
+			.put(8, "Ujratoltodes elotti hivas")
+			.put(9, "A jatek nincs folyamatban")
+			.put(10, "A megadott hajo mar mozgott ebben a korben")
+			.put(11, "Tul nagy gyorsulas")
+			.put(12, "Tul nagy kanyarodas")
 			.build();
 
 	protected String message;
