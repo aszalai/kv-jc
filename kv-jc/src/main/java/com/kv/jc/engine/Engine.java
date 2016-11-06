@@ -107,7 +107,7 @@ public class Engine {
   }
   
   public static Position getEndPos(Game game, Position center, double angle) {
-    double x = game.getMapConfiguration().getSubmarineSize();
+    double x = game.getMapConfiguration().getSubmarineSize() + 30;
     double y = 0.0;
     double angleRad = angle / 180.0 * Math.PI;
     Position result = new Position();
