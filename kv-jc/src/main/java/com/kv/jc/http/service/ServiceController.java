@@ -73,33 +73,38 @@ public final class ServiceController {
 	public Game gameInfo(long gameId) {
 		return call(gameService.gameInfo(gameId)).getGame();
 	}
+	
+	public void updateState(final Game game) {
+	  updateSumbarines(game);
+	  updateEntities(game);
+	}
 
-	public List<Submarine> getSubmarines(Game game) {
+	private void updateSumbarines(final Game game) {
+      List<Submarine> submarines = getSubmarines(game);
+      submarines.forEach(submarine -> submarine.setGameId(game.getId()));
+      game.getSubmarines().clear();
+      game.getSubmarines().addAll(submarines);
+    }
+
+	public void move(Submarine submarine, Double speed, Double turn) {
+      MoveRequest request = new MoveRequest(speed, turn);
+      call(submarineService.move(submarine.getGameId(), submarine.getId(), request));
+    }
+
+    public void shoot(Submarine submarine, Double angle) {
+      ShootRequest request = new ShootRequest(angle);
+      call(submarineService.shoot(submarine.getGameId(), submarine.getId(), request));
+    }
+
+    private List<Submarine> getSubmarines(Game game) {
 		return call(submarineService.getSubmarines(game.getId())).getSubmarines();
 	}
 
-	public void updateSumbarines(final Game game) {
-		List<Submarine> submarines = getSubmarines(game);
-		submarines.forEach(submarine -> submarine.setGameId(game.getId()));
-		game.getSubmarines().clear();
-		game.getSubmarines().addAll(submarines);
-	}
-
-	public void move(Submarine submarine, Double speed, Double turn) {
-		MoveRequest request = new MoveRequest(speed, turn);
-		call(submarineService.move(submarine.getGameId(), submarine.getId(), request));
-	}
-
-	public void shoot(Submarine submarine, Double angle) {
-		ShootRequest request = new ShootRequest(angle);
-		call(submarineService.shoot(submarine.getGameId(), submarine.getId(), request));
-	}
-
-	public List<Entity> getSonar(Submarine submarine) {
+	private List<Entity> getSonar(Submarine submarine) {
 		return call(sonarService.getSonar(submarine.getGameId(), submarine.getId())).getEntities();
 	}
 
-	public void updateEntities(final Game game) {
+	private void updateEntities(final Game game) {
 		final List<Entity> entities = new ArrayList<>();
 		game.getSubmarines().forEach(submarine -> entities.addAll(getSonar(submarine)));
 		game.getEnemies().clear();
@@ -108,7 +113,7 @@ public final class ServiceController {
 		game.getTorpedos().addAll(entities.stream().filter(entity -> entity.getType() == EntityType.Torpedo).collect(Collectors.toList()));
 	}
 
-	// FIXME Minket is messzebbrõl látnak!!!
+	// FIXME Minket is messzebbrï¿½l lï¿½tnak!!!
 	@Deprecated
 	public boolean extendSonar(Submarine submarine) {
 		if (submarine.getSonarCooldown() > 0) {

@@ -89,6 +89,9 @@ public class Game {
 				// "\n\tconnectionStatus" + connectionStatus +
 				"\n\tstatus=" + status +
 				"\n\tcreatedTime=" + createdTime +
+				"\n\tsubmarines=" + submarines + 
+				"\n\tenemies=" + enemies +
+				"\n\ttorpedos=" + torpedos + 
 				"\n\tmapConfiguration=" + mapConfiguration;
 	}
 

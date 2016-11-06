@@ -3,6 +3,10 @@ package com.kv.jc;
 import java.io.IOException;
 import java.util.List;
 
+import com.kv.jc.engine.Action;
+import com.kv.jc.engine.Engine;
+import com.kv.jc.engine.Move;
+import com.kv.jc.engine.Shoot;
 import com.kv.jc.http.json.Game;
 import com.kv.jc.http.json.GameStatus;
 import com.kv.jc.http.service.ServiceController;
@@ -54,6 +58,15 @@ public class Main {
             // get game state, send radar actions
             game = controller.gameInfo(gameId);
             status = game.getStatus();
+            controller.updateState(game);
+            List<Action> actions = Engine.getActions(game);
+            for (Action a : actions) {
+              if (a instanceof Move) {
+                controller.move(a.submarine, ((Move)a).velocity, a.angle);
+              } else if (a instanceof Shoot) {
+                controller.shoot(a.submarine, a.angle);
+              }
+            }
             System.out.println(game);
             // send actions
             break;
