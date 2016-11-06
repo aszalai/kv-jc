@@ -113,7 +113,7 @@ public final class ServiceController {
 		game.getTorpedos().addAll(entities.stream().filter(entity -> entity.getType() == EntityType.Torpedo).collect(Collectors.toList()));
 	}
 
-	// FIXME Minket is messzebbr�l l�tnak!!!
+	// FIXME Minket is messzebbrol latnak!!!
 	@Deprecated
 	public boolean extendSonar(Submarine submarine) {
 		if (submarine.getSonarCooldown() > 0) {
