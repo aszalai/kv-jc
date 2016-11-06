@@ -68,6 +68,7 @@ public class Main {
             // send actions
             List<Action> actions = Engine.getActions(game);
             for (Action a : actions) {
+              System.out.println("ACTION: " + a);
               if (a instanceof Move) {
                 controller.move(a.submarine, ((Move)a).velocity, a.angle);
               } else if (a instanceof Shoot) {

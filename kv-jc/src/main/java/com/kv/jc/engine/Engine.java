@@ -49,6 +49,12 @@ public class Engine {
       velocity = acc;
     }
     // TODO: adjust angle by wall distance...
+    if (angle < -game.getMapConfiguration().getMaxSteeringPerRound()) {
+      angle = -game.getMapConfiguration().getMaxSteeringPerRound();
+    }
+    if (angle > game.getMapConfiguration().getMaxSteeringPerRound()) {
+      angle = game.getMapConfiguration().getMaxSteeringPerRound();
+    }
     return new Move(submarine, angle, velocity);
   }
   
