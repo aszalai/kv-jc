@@ -26,7 +26,7 @@ interface SubmarineService {
 			@Body MoveRequest moveRequest);
 
 	@Headers(ServiceConfiguration.HEADER)
-	@GET(ServiceConfiguration.URL_SHOOT)
+	@POST(ServiceConfiguration.URL_SHOOT)
 	Call<ShootResponse> shoot(@Path(ServiceConfiguration.PARAM_GAME_ID) Long gameId,
 			@Path(ServiceConfiguration.PARAM_SUBMARINE_ID) Long submarineId,
 			@Body ShootRequest shootRequest);

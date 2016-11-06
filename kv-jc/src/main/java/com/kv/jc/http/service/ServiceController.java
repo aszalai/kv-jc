@@ -2,12 +2,15 @@ package com.kv.jc.http.service;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.kv.jc.http.json.Entity;
 import com.kv.jc.http.json.EntityType;
 import com.kv.jc.http.json.Game;
+import com.kv.jc.http.json.GameStatus;
 import com.kv.jc.http.json.Submarine;
 import com.kv.jc.http.json.request.MoveRequest;
 import com.kv.jc.http.json.request.ShootRequest;
@@ -24,12 +27,15 @@ public final class ServiceController {
 		return new ServiceController(baseUrl);
 	}
 
+	private List<ServiceCallback> callbacks = new ArrayList<>();
+
 	private GameService gameService;
 	private SubmarineService submarineService;
 	private SonarService sonarService;
 
 	private ServiceController(String baseUrl) {
-		Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(GsonConverterFactory.create()).build();
+		Retrofit retrofit = new Retrofit.Builder().baseUrl(baseUrl).addConverterFactory(GsonConverterFactory.create())
+				.build();
 		gameService = retrofit.create(GameService.class);
 		submarineService = retrofit.create(SubmarineService.class);
 		sonarService = retrofit.create(SonarService.class);
@@ -58,6 +64,12 @@ public final class ServiceController {
 		return response;
 	}
 
+	public void addCallback(ServiceCallback serviceCallback) {
+		if (serviceCallback != null) {
+			callbacks.add(serviceCallback);
+		}
+	}
+
 	public List<Integer> getGames() {
 		return call(gameService.getGameList()).getGames();
 	}
@@ -65,38 +77,64 @@ public final class ServiceController {
 	public Long createGame() {
 		return call(gameService.createGame()).getId();
 	}
-	
+
 	public void joinGame(long gameId) {
-	  call(gameService.joinGame(gameId));
+		call(gameService.joinGame(gameId));
 	}
 
 	public Game gameInfo(long gameId) {
 		return call(gameService.gameInfo(gameId)).getGame();
 	}
-	
+
+	private void updateGameInfo(final Game game) {
+		Game refreshedGame = gameInfo(game.getId());
+		game.setRound(refreshedGame.getRound());
+		game.setScores(refreshedGame.getScores());
+		game.setMapConfiguration(refreshedGame.getMapConfiguration());
+		game.setStatus(refreshedGame.getStatus());
+	}
+
 	public void updateState(final Game game) {
-	  updateSumbarines(game);
-	  updateEntities(game);
+		updateGameInfo(game);
+		if (game.getStatus() == GameStatus.RUNNING) {
+			updateSumbarines(game);
+			updateEntities(game);
+		}
+		callbacks.forEach(callback -> {
+			if (game.getId() == callback.getGameId()) {
+				callback.onUpdateState();
+			}
+		});
 	}
 
 	private void updateSumbarines(final Game game) {
-      List<Submarine> submarines = getSubmarines(game);
-      submarines.forEach(submarine -> submarine.setGameId(game.getId()));
-      game.getSubmarines().clear();
-      game.getSubmarines().addAll(submarines);
-    }
+		List<Submarine> submarines = getSubmarines(game);
+		submarines.forEach(submarine -> submarine.setGameId(game.getId()));
+		game.getSubmarines().clear();
+		game.getSubmarines().addAll(submarines);
+	}
 
 	public void move(Submarine submarine, Double speed, Double turn) {
-      MoveRequest request = new MoveRequest(speed, turn);
-      call(submarineService.move(submarine.getGameId(), submarine.getId(), request));
-    }
+		MoveRequest request = new MoveRequest(speed, turn);
+		call(submarineService.move(submarine.getGameId(), submarine.getId(), request));
+		callbacks.forEach(callback -> {
+			if (submarine.getGameId() == callback.getGameId()) {
+				callback.onMove(submarine, speed, turn);
+			}
+		});
+	}
 
-    public void shoot(Submarine submarine, Double angle) {
-      ShootRequest request = new ShootRequest(angle);
-      call(submarineService.shoot(submarine.getGameId(), submarine.getId(), request));
-    }
+	public void shoot(Submarine submarine, Double angle) {
+		ShootRequest request = new ShootRequest(angle);
+		call(submarineService.shoot(submarine.getGameId(), submarine.getId(), request));
+		callbacks.forEach(callback -> {
+			if (submarine.getGameId() == callback.getGameId()) {
+				callback.onShoot(submarine, angle);
+			}
+		});
+	}
 
-    private List<Submarine> getSubmarines(Game game) {
+	private List<Submarine> getSubmarines(Game game) {
 		return call(submarineService.getSubmarines(game.getId())).getSubmarines();
 	}
 
@@ -106,10 +144,14 @@ public final class ServiceController {
 
 	private void updateEntities(final Game game) {
 		final List<Entity> entities = new ArrayList<>();
-		game.getSubmarines().forEach(submarine -> entities.addAll(getSonar(submarine)));
+		final Set<Long> ownSubmarineIds = new HashSet<>();
+		game.getSubmarines().forEach(submarine -> {
+			entities.addAll(getSonar(submarine));
+			ownSubmarineIds.add(submarine.getId());
+		});
 		game.getEnemies().clear();
 		game.getTorpedos().clear();
-		game.getEnemies().addAll(entities.stream().filter(entity -> entity.getType() == EntityType.Submarine).collect(Collectors.toList()));
+		game.getEnemies().addAll(entities.stream().filter(entity -> entity.getType() == EntityType.Submarine && !ownSubmarineIds.contains(entity.getId())).collect(Collectors.toList()));
 		game.getTorpedos().addAll(entities.stream().filter(entity -> entity.getType() == EntityType.Torpedo).collect(Collectors.toList()));
 	}
 
