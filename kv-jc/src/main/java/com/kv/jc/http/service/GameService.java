@@ -1,6 +1,7 @@
 package com.kv.jc.http.service;
 
 import com.kv.jc.http.json.response.CreateGameResponse;
+import com.kv.jc.http.json.response.GetGameInfoResponse;
 import com.kv.jc.http.json.response.GetGameListResponse;
 import com.kv.jc.http.json.response.JoinGameResponse;
 
@@ -22,6 +23,10 @@ interface GameService {
 
 	@Headers(ServiceConfiguration.HEADER)
 	@POST(ServiceConfiguration.URL_JOIN_GAME)
-	Call<JoinGameResponse> joinGame(@Path(ServiceConfiguration.PARAM_GAME_ID) Integer gameId);
-
+	Call<JoinGameResponse> joinGame(@Path(ServiceConfiguration.PARAM_GAME_ID) Long gameId);
+	
+	@Headers(ServiceConfiguration.HEADER)
+    @GET(ServiceConfiguration.URL_GET_GAME_INFO)
+	Call<GetGameInfoResponse> gameInfo(@Path(ServiceConfiguration.PARAM_GAME_ID) Long gameId);
+    
 }

@@ -1,15 +1,14 @@
 package com.kv.jc.http.json;
 
-import java.util.Map;
-
 public class Game {
 
 	private Long id;
 	private Integer round;
-	private Map<String, Integer> scores;
-	// private ConnectionStatus connectionStatus;
+	private Scores scores;
+	//private ConnectionStatus connectionStatus;
 	private MapConfiguration mapConfiguration;
 	private GameStatus status;
+	private long createdTime;
 
 	public Long getId() {
 		return id;
@@ -27,11 +26,11 @@ public class Game {
 		this.round = round;
 	}
 
-	public Map<String, Integer> getScores() {
+	public Scores getScores() {
 		return scores;
 	}
 
-	public void setScores(Map<String, Integer> scores) {
+	public void setScores(Scores scores) {
 		this.scores = scores;
 	}
 
@@ -50,5 +49,18 @@ public class Game {
 	public void setStatus(GameStatus status) {
 		this.status = status;
 	}
+
+  @Override
+  public String toString() {
+    return "Game\n\tid=" + id + 
+        "\n\tround=" + round + 
+        "\n\tscores=" + scores + 
+        //"\n\tconnectionStatus" + connectionStatus +
+        "\n\tstatus=" + status + 
+        "\n\tcreatedTime=" + createdTime + 
+        "\n\tmapConfiguration=" + mapConfiguration;
+  }
+	
+	
 
 }

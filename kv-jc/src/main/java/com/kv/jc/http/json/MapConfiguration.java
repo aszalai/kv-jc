@@ -34,7 +34,21 @@ public class MapConfiguration {
 		return width;
 	}
 
-	public void setWidth(Integer width) {
+	@Override
+  public String toString() {
+    return "MapConfiguration [width=" + width + ", height=" + height + ", islandPositions=" + islandPositions
+        + ", teamCount=" + teamCount + ", submarinesPerTeam=" + submarinesPerTeam + ", torpedoDamage=" + torpedoDamage
+        + ", torpedoHitScore=" + torpedoHitScore + ", torpedoDestroyScore=" + torpedoDestroyScore
+        + ", torpedoHitPenalty=" + torpedoHitPenalty + ", torpedoCooldown=" + torpedoCooldown + ", sonarRange="
+        + sonarRange + ", extendedSonarRange=" + extendedSonarRange + ", extendedSonarRounds=" + extendedSonarRounds
+        + ", extendedSonarCooldown=" + extendedSonarCooldown + ", torpedoSpeed=" + torpedoSpeed
+        + ", torpedoExplosionRadius=" + torpedoExplosionRadius + ", roundLength=" + roundLength + ", islandSize="
+        + islandSize + ", submarineSize=" + submarineSize + ", rounds=" + rounds + ", maxSteeringPerRound="
+        + maxSteeringPerRound + ", maxAccelerationPerRound=" + maxAccelerationPerRound + ", maxSpeed=" + maxSpeed
+        + ", torpedoRange=" + torpedoRange + ", rateLimitedPenalty=" + rateLimitedPenalty + "]";
+  }
+
+  public void setWidth(Integer width) {
 		this.width = width;
 	}
 

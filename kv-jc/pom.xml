@@ -25,5 +25,74 @@
 		</dependency>
 	</dependencies>
 
+<!--
+  <dependencies>
+    <dependency>
+      <groupId>com.squareup.retrofit2</groupId>
+      <artifactId>retrofit</artifactId>
+      <version>2.0.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libs/retrofit-2.0.0.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.retrofit2.converget-gson</groupId>
+      <artifactId>converter-gson</artifactId>
+      <version>2.0.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libs/converter-gson-2.0.0.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.retrofit2.okhttp3</groupId>
+      <artifactId>okhttp3</artifactId>
+      <version>3.2.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libs/okhttp-3.2.0.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.squareup.retrofit2.okio</groupId>
+      <artifactId>okio</artifactId>
+      <version>1.6.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libs/okio-1.6.0.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.google.collections</groupId>
+      <artifactId>google-collections</artifactId>
+      <version>1.0</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libs/google-collections-1.0.jar</systemPath>
+    </dependency>
+    <dependency>
+      <groupId>com.google.gson</groupId>
+      <artifactId>google-gson</artifactId>
+      <version>2.6.1</version>
+      <scope>system</scope>
+      <systemPath>${project.basedir}/libs/gson-2.6.1.jar</systemPath>
+    </dependency>
+  </dependencies>
+-->
 
+  <build>
+    <finalName>kaJAVAdaszok</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-jar-plugin</artifactId>
+        <configuration>
+          <descriptorRefs>
+            <descriptorRef>jar-with-dependencies</descriptorRef>
+          </descriptorRefs>
+          <archive>
+            <manifest>
+              <addClasspath>true</addClasspath>
+              <mainClass>com.kv.jc.Main</mainClass>
+            </manifest>
+            <manifestEntries>
+              <Class-Path>.</Class-Path>
+            </manifestEntries>
+          </archive>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
 </project>

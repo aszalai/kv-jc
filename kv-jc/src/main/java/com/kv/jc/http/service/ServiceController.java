@@ -3,6 +3,7 @@ package com.kv.jc.http.service;
 import java.io.IOException;
 import java.util.List;
 
+import com.kv.jc.http.json.Game;
 import com.kv.jc.http.json.response.AbstractResponse;
 
 import retrofit2.Call;
@@ -48,6 +49,14 @@ public final class ServiceController {
 
 	public List<Integer> getGames() {
 		return call(gameService.getGameList()).getGames();
+	}
+	
+	public Long createGame() {
+	  return call(gameService.createGame()).getId();
+	}
+	
+	public Game gameInfo(long gameId) {
+	  return call(gameService.gameInfo(gameId)).getGame();
 	}
 
 }
