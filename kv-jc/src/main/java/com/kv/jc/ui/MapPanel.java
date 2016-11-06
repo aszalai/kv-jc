@@ -75,10 +75,10 @@ public class MapPanel extends JPanel {
 
 	private void drawVector(Graphics2D g, Position position, Double angle, Integer baseSize) {
 		Position normalized = normalize(position);
-		Position endPos = Engine.getEndPos(game, normalized, angle, baseSize + 30);
+		Position endPos = Engine.getEndPos(game, normalized, -angle, baseSize + 30);
 		g.drawLine(normalized.getX().intValue(), normalized.getY().intValue(), endPos.getX().intValue(), endPos.getY().intValue());
-		Position endPos2 = Engine.getEndPos(game, endPos, (angle - 180) + 20, 10);
-		Position endPos3 = Engine.getEndPos(game, endPos, (angle - 180) - 20, 10);
+		Position endPos2 = Engine.getEndPos(game, endPos, (-angle - 180) + 20, 10);
+		Position endPos3 = Engine.getEndPos(game, endPos, (-angle - 180) - 20, 10);
 		g.drawLine(endPos.getX().intValue(), endPos.getY().intValue(), endPos2.getX().intValue(), endPos2.getY().intValue());
 		g.drawLine(endPos.getX().intValue(), endPos.getY().intValue(), endPos3.getX().intValue(), endPos3.getY().intValue());
 	}
