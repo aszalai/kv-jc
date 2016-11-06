@@ -6,9 +6,11 @@ public class Target {
   public final Position position;
   public final double angle;
   public final double velocity;
-  public Target(Position position, double angle, double velociy) {
+  public final double score;
+  public Target(Position position, double angle, double velociy, double score) {
     this.position = position;
     this.angle = angle;
     this.velocity = velociy;
+    this.score = score;
   }
 }
