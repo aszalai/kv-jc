@@ -67,6 +67,7 @@ public class Main {
             
             // send actions
             List<Action> actions = Engine.getActions(game);
+            // TODO: do not make multiple actions in the same round
             for (Action a : actions) {
               System.out.println("ACTION: " + a);
               if (a instanceof Move) {

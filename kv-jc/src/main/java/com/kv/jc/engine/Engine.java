@@ -29,6 +29,7 @@ public class Engine {
   }
   
   public static List<Target> getTargets(Game game) {
+    // TODO: identify more targets
     List<Target> targets = new LinkedList<Target>();
     for (Entity entity : game.getEnemies()) {
       targets.add(new Target(entity.getPosition(), entity.getAngle(), entity.getVelocity(), 0));
@@ -48,7 +49,7 @@ public class Engine {
     if (submarine.getVelocity() / acc < distance + game.getMapConfiguration().getTorpedoRange() + 1) {
       velocity = acc;
     }
-    // TODO: adjust angle by wall distance...
+    // TODO: adjust angle and speed by wall distance... and other objects
     if (angle < -game.getMapConfiguration().getMaxSteeringPerRound()) {
       angle = -game.getMapConfiguration().getMaxSteeringPerRound();
     }
