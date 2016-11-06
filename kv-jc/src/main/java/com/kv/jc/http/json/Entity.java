@@ -57,4 +57,10 @@ public class Entity {
 		this.roundsMoved = roundsMoved;
 	}
 
+  @Override
+  public String toString() {
+    return "Entity [type=" + type + ", id=" + id + ", position=" + position + ", velocity=" + velocity + ", angle="
+        + angle + ", roundsMoved=" + roundsMoved + "]";
+  }
+
 }

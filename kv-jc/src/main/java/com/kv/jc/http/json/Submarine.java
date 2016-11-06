@@ -88,4 +88,11 @@ public class Submarine {
 		this.gameId = gameId;
 	}
 
+  @Override
+  public String toString() {
+    return "Submarine [id=" + id + ", position=" + position + ", velocity=" + velocity + ", angle=" + angle + ", hp="
+        + hp + ", sonarCooldown=" + sonarCooldown + ", torpedoCooldown=" + torpedoCooldown + ", sonarExtended="
+        + sonarExtended + "]";
+  }
+
 }
