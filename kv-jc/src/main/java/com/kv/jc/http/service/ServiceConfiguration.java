@@ -8,7 +8,7 @@ interface ServiceConfiguration {
 	final String TEAM_TOKEN = "EB49C4C699FDC2EA52C26010079C8D88";
 
 	/**
-	 * Maximum ennyiszer prï¿½bï¿½lja ï¿½jra a sikertelen kï¿½rï¿½seket, mielï¿½tt RuntimeException-t dobna.
+	 * Maximum ennyiszer próbálja újra a sikertelen kéréseket, mielõtt RuntimeException-t dobna.
 	 */
 	final int MAX_TRIES = 3;
 
@@ -18,7 +18,7 @@ interface ServiceConfiguration {
 	final String HEADER = "TEAMTOKEN: " + TEAM_TOKEN;
 
 	/**
-	 * Paramï¿½terek az URL-ekben
+	 * Paraméterek az URL-ekben
 	 */
 	final String PARAM_GAME_ID = "gameId";
 	final String PARAM_SUBMARINE_ID = "submarineId";

@@ -13,6 +13,9 @@ public class Submarine {
 	private Integer torpedoCooldown;
 	private Integer sonarExtended;
 
+	// transient fields
+	private transient Long gameId;
+
 	public Long getId() {
 		return id;
 	}
@@ -75,6 +78,14 @@ public class Submarine {
 
 	public void setSonarExtended(Integer sonarExtended) {
 		this.sonarExtended = sonarExtended;
+	}
+
+	public Long getGameId() {
+		return gameId;
+	}
+
+	public void setGameId(Long gameId) {
+		this.gameId = gameId;
 	}
 
 }
