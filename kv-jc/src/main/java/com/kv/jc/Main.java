@@ -71,12 +71,12 @@ public class Main {
             }
             
             // print game state
-            System.out.println(game);
+            System.out.println("round: " + game.getRound() + "\n" + game.getScores());
             
             // send actions
-            List<Action> actions = Engine.getActions(game);
-            // TODO: do not make multiple actions in the same round
             if (game.getRound() != round) {
+              List<Action> actions = Engine.getActions(game);
+              // TODO: do not make multiple actions in the same round
               for (Action a : actions) {
                 System.out.println("ACTION: " + a);
                 if (a instanceof Move) {
