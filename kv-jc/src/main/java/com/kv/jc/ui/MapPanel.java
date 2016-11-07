@@ -61,6 +61,7 @@ public class MapPanel extends JPanel {
 	private void drawTorpedo(Graphics2D g, Entity torpedo) {
 		fillOval(g, torpedo.getPosition(), 5);
 		drawVector(g, torpedo.getPosition(), torpedo.getAngle(), 5);
+		drawOval(g, torpedo.getPosition(), cfg.getTorpedoRange());
 	}
 
 	private void drawEnemy(Graphics2D g, Entity enemy) {
@@ -86,6 +87,11 @@ public class MapPanel extends JPanel {
 	private void fillOval(Graphics2D g, Position position, Integer size) {
 		Position normalised = normalizeCenter(position, size);
 		g.fillOval(normalised.getX().intValue(), normalised.getY().intValue(), size, size);
+	}
+
+	private void drawOval(Graphics2D g, Position position, Integer size) {
+		Position normalised = normalizeCenter(position, size);
+		g.drawOval(normalised.getX().intValue(), normalised.getY().intValue(), size, size);
 	}
 
 	private Position normalize(Position position) {
