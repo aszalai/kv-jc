@@ -23,11 +23,13 @@ public class MapPanel extends JPanel {
 	public static final Color COLOR_TORPEDO = Color.RED;
 
 	private final Game game;
+	private final DisplayConfiguration displayConfiguration;
 	private MapConfiguration cfg;
 
-	public MapPanel(Game game) {
+	public MapPanel(Game game, DisplayConfiguration displayConfiguration) {
 		super();
 		this.game = game;
+		this.displayConfiguration = displayConfiguration;
 		cfg = game.getMapConfiguration();
 		MapConfiguration cfg = game.getMapConfiguration();
 		setBounds(10, 10, cfg.getWidth(), cfg.getHeight());
@@ -56,24 +58,91 @@ public class MapPanel extends JPanel {
 		g.setColor(COLOR_TORPEDO);
 		game.getTorpedos().forEach(torpedo -> drawTorpedo(g, torpedo));
 
+		// draw rounds & scores
+		g.setColor(Color.WHITE);
+		drawRoundsAndScores(g);
+	}
+
+	private void drawRoundsAndScores(Graphics2D g) {
+		Position position = new Position(10.0, 20.0);
+		if (displayConfiguration.showRound) {
+			drawChars(g, "Round: " + game.getRound(), position);
+			position.setY(position.getY() + 5);
+		}
+		if (displayConfiguration.showScores) {
+			game.getScores().getOrderedScores().forEach(score -> {
+				drawChars(g, score.getKey() + ": " + score.getValue(), position);
+			});
+		}
 	}
 
 	private void drawTorpedo(Graphics2D g, Entity torpedo) {
 		fillOval(g, torpedo.getPosition(), 5);
 		drawVector(g, torpedo.getPosition(), torpedo.getAngle(), 5);
-		drawOval(g, torpedo.getPosition(), cfg.getTorpedoRange());
+		if (displayConfiguration.showTorpedoRange) {
+			drawOval(g, torpedo.getPosition(), cfg.getTorpedoRange());
+		}
+
+		Position displayPosition = normalizeCenter(torpedo.getPosition(), 5);
+		displayPosition.setX(displayPosition.getX() - 15);
+		displayPosition.setY(displayPosition.getY() + 20);
+		if (displayConfiguration.showId) {
+			drawChars(g, getIdString(torpedo.getId()), displayPosition);
+		}
+		if (displayConfiguration.showSpeed) {
+			drawChars(g, getSpeedString(torpedo.getVelocity()), displayPosition);
+		}
 	}
 
 	private void drawEnemy(Graphics2D g, Entity enemy) {
 		fillOval(g, enemy.getPosition(), cfg.getSubmarineSize());
 		drawVector(g, enemy.getPosition(), enemy.getAngle(), cfg.getSubmarineSize());
+		
+		if (displayConfiguration.showSonarRange) {
+			drawOval(g, enemy.getPosition(), cfg.getSonarRange());
+		}
+
+		Position displayPosition = normalizeCenter(enemy.getPosition(), cfg.getSubmarineSize());
+		displayPosition.setX(displayPosition.getX() - 15);
+		displayPosition.setY(displayPosition.getY() + cfg.getSubmarineSize() + 15);
+		if (displayConfiguration.showId) {
+			drawChars(g, getIdString(enemy.getId()), displayPosition);
+		}
+		if (displayConfiguration.showSpeed) {
+			drawChars(g, getSpeedString(enemy.getVelocity()), displayPosition);
+		}
 	}
 
 	private void drawSubmarine(Graphics2D g, Submarine submarine) {
 		fillOval(g, submarine.getPosition(), cfg.getSubmarineSize());
 		drawVector(g, submarine.getPosition(), submarine.getAngle(), cfg.getSubmarineSize());
+
+		if (displayConfiguration.showSonarRange) {
+			drawOval(g, submarine.getPosition(), submarine.getSonarCooldown() > 0 ? cfg.getExtendedSonarRange() : cfg.getSonarRange());
+		}
+
+		Position displayPosition = normalizeCenter(submarine.getPosition(), cfg.getSubmarineSize());
+		displayPosition.setX(displayPosition.getX() - 15);
+		displayPosition.setY(displayPosition.getY() + cfg.getSubmarineSize() + 15);
+		if (displayConfiguration.showId) {
+			drawChars(g, getIdString(submarine.getId()), displayPosition);
+		}
+		if (displayConfiguration.showHp) {
+			drawChars(g, getHpString(submarine.getHp()), displayPosition);
+		}
+		if (displayConfiguration.showSpeed) {
+			drawChars(g, getSpeedString(submarine.getVelocity()), displayPosition);
+		}
+		if (displayConfiguration.showTorpedoCooldown) {
+			drawChars(g, getCDString(submarine.getTorpedoCooldown()), displayPosition);
+		}
 	}
 
+	private void drawChars(Graphics2D g, String string, Position position) {
+		g.drawChars(string.toCharArray(), 0, string.length(), position.getX().intValue(), position.getY().intValue());
+		position.setY(position.getY() + 15);
+	}
+	
 	private void drawVector(Graphics2D g, Position position, Double angle, Integer baseSize) {
 		Position normalized = normalize(position);
 		Position endPos = Engine.getEndPos(game, normalized, -angle, baseSize + 30);
@@ -104,5 +173,21 @@ public class MapPanel extends JPanel {
 		p.setX(p.getX() - rp2);
 		p.setY(p.getY() - rp2);
 		return p;
+	}
+
+	private String getIdString(Long id) {
+		return "ID: " + id;
+	}
+
+	private String getHpString(Integer hp) {
+		return "HP: " + hp;
+	}
+
+	private String getSpeedString(Double speed) {
+		return "S: " + speed;
+	}
+
+	private String getCDString(Integer cd) {
+		return "CD: " + cd;
 	}
 }

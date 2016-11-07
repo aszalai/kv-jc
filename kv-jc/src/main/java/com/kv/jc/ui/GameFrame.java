@@ -13,11 +13,13 @@ public class GameFrame extends JFrame implements ServiceCallback {
 	private static final long serialVersionUID = -3964035058950665891L;
 
 	private final Game game;
+	private final DisplayConfiguration displayConfiguration;
 	private final MapPanel mapPanel;
 
 	public GameFrame(Game game) {
 		super("kaJAVAdászok - Game ID:" + game.getId());
 		this.game = game;
+		displayConfiguration = new DisplayConfiguration();
 
 		try {
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -27,13 +29,16 @@ public class GameFrame extends JFrame implements ServiceCallback {
 
 		setDefaultCloseOperation(EXIT_ON_CLOSE);
 		MapConfiguration cfg = game.getMapConfiguration();
-		setSize(cfg.getWidth() + 26, cfg.getHeight() + 48);
+		setSize(cfg.getWidth() + 26, cfg.getHeight() + 69);
 		setResizable(false);
 		setLocationRelativeTo(null);
+
+		setJMenuBar(new GameMenuBar(game, displayConfiguration, this));
+
 		JPanel wrapper = new JPanel();
 		wrapper.setBackground(MapPanel.COLOR_ISLAND);
 		wrapper.setLayout(null);
-		wrapper.add(mapPanel = new MapPanel(game));
+		wrapper.add(mapPanel = new MapPanel(game, displayConfiguration));
 		add(wrapper);
 		setVisible(true);
 	}
@@ -44,7 +49,7 @@ public class GameFrame extends JFrame implements ServiceCallback {
 	}
 
 	@Override
-	public void onUpdateState() {
+	public synchronized void onUpdateState() {
 		mapPanel.repaint();
 		// TODO UPDATE CONFIG DIALOG
 	}
