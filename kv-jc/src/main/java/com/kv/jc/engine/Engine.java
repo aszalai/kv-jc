@@ -31,7 +31,7 @@ public class Engine {
       for (int i = 0; i < idle.length; i++) {
         idle[i] = new Position();
         idle[i].setX((i*2 + 1) * game.getMapConfiguration().getWidth() / 4 + 0.0);
-        idle[i].setY(game.getMapConfiguration().getHeight() / 2 + 0.0);
+        idle[i].setY((i*2 + 1) * game.getMapConfiguration().getHeight() / 4 + 0.0);
       }
     }
     List<Action> result = new LinkedList<Action>();
