@@ -66,7 +66,7 @@ public class MapPanel extends JPanel {
 	private void drawRoundsAndScores(Graphics2D g) {
 		Position position = new Position(10.0, 20.0);
 		if (displayConfiguration.showRound) {
-			drawChars(g, "Round: " + game.getRound(), position);
+			drawChars(g, "Round: " + game.getRound() + " / " + cfg.getRounds(), position);
 			position.setY(position.getY() + 5);
 		}
 		if (displayConfiguration.showScores) {
