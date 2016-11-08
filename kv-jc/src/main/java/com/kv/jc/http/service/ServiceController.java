@@ -41,7 +41,7 @@ public final class ServiceController {
 		sonarService = retrofit.create(SonarService.class);
 	}
 
-	private <T extends AbstractResponse> T call(Call<T> call) {
+	private <T extends AbstractResponse> T call(Call<T> call) throws ServiceCallException {
 		Response<T> executeResponse = null;
 		Throwable throwable = null;
 		int numberOfTries = 0;
@@ -53,13 +53,16 @@ public final class ServiceController {
 				throwable = e;
 			}
 			if ((throwable != null && numberOfTries >= ServiceConfiguration.MAX_TRIES)) {
-				throw new RuntimeException(throwable);
+				throw new ServiceCallException("Max tries reached", call, throwable);
 			}
 		}
 
 		T response = executeResponse.body();
+		if (response == null) {
+			throw new ServiceCallException("Response is null", call);
+		}
 		if (!response.isOK()) {
-			throw new RuntimeException(response.getMessage() + " " + response.getErrorMessage());
+			throw new ServiceCallException(response.getMessage() + " " + response.getErrorMessage(), call);
 		}
 		return response;
 	}
@@ -70,23 +73,23 @@ public final class ServiceController {
 		}
 	}
 
-	public List<Integer> getGames() {
+	public List<Integer> getGames() throws ServiceCallException {
 		return call(gameService.getGameList()).getGames();
 	}
 
-	public Long createGame() {
+	public Long createGame() throws ServiceCallException {
 		return call(gameService.createGame()).getId();
 	}
 
-	public void joinGame(long gameId) {
+	public void joinGame(long gameId) throws ServiceCallException {
 		call(gameService.joinGame(gameId));
 	}
 
-	public Game gameInfo(long gameId) {
+	public Game gameInfo(long gameId) throws ServiceCallException {
 		return call(gameService.gameInfo(gameId)).getGame();
 	}
 
-	private void updateGameInfo(final Game game) {
+	private void updateGameInfo(final Game game) throws ServiceCallException {
 		Game refreshedGame = gameInfo(game.getId());
 		game.setRound(refreshedGame.getRound());
 		game.setScores(refreshedGame.getScores());
@@ -94,7 +97,7 @@ public final class ServiceController {
 		game.setStatus(refreshedGame.getStatus());
 	}
 
-	public void updateState(final Game game) {
+	public void updateState(final Game game) throws ServiceCallException {
 		updateGameInfo(game);
 		if (game.getStatus() == GameStatus.RUNNING) {
 			updateSumbarines(game);
@@ -107,14 +110,14 @@ public final class ServiceController {
 		});
 	}
 
-	private void updateSumbarines(final Game game) {
+	private void updateSumbarines(final Game game) throws ServiceCallException {
 		List<Submarine> submarines = getSubmarines(game);
 		submarines.forEach(submarine -> submarine.setGameId(game.getId()));
 		game.getSubmarines().clear();
 		game.getSubmarines().addAll(submarines);
 	}
 
-	public void move(Submarine submarine, Double speed, Double turn) {
+	public void move(Submarine submarine, Double speed, Double turn) throws ServiceCallException {
 		MoveRequest request = new MoveRequest(speed, turn);
 		call(submarineService.move(submarine.getGameId(), submarine.getId(), request));
 		callbacks.forEach(callback -> {
@@ -124,7 +127,7 @@ public final class ServiceController {
 		});
 	}
 
-	public void shoot(Submarine submarine, Double angle) {
+	public void shoot(Submarine submarine, Double angle) throws ServiceCallException {
     if (submarine.getTorpedoCooldown() > 0) {
       return;
     }
@@ -137,21 +140,21 @@ public final class ServiceController {
 		});
 	}
 
-	private List<Submarine> getSubmarines(Game game) {
+	private List<Submarine> getSubmarines(Game game) throws ServiceCallException {
 		return call(submarineService.getSubmarines(game.getId())).getSubmarines();
 	}
 
-	private List<Entity> getSonar(Submarine submarine) {
+	private List<Entity> getSonar(Submarine submarine) throws ServiceCallException {
 		return call(sonarService.getSonar(submarine.getGameId(), submarine.getId())).getEntities();
 	}
 
-	private void updateEntities(final Game game) {
+	private void updateEntities(final Game game) throws ServiceCallException {
 		final List<Entity> entities = new ArrayList<>();
 		final Set<Long> ownSubmarineIds = new HashSet<>();
-		game.getSubmarines().forEach(submarine -> {
+		for (Submarine submarine : game.getSubmarines()) {
 			entities.addAll(getSonar(submarine));
 			ownSubmarineIds.add(submarine.getId());
-		});
+		}
 		game.getEnemies().clear();
 		game.getTorpedos().clear();
 		game.getEnemies().addAll(entities.stream().filter(entity -> entity.getType() == EntityType.Submarine && !ownSubmarineIds.contains(entity.getId())).collect(Collectors.toList()));
@@ -160,7 +163,7 @@ public final class ServiceController {
 
 	// FIXME Minket is messzebbrol latnak!!!
 	@Deprecated
-	public boolean extendSonar(Submarine submarine) {
+	public boolean extendSonar(Submarine submarine) throws ServiceCallException {
 		if (submarine.getSonarCooldown() > 0) {
 			return false;
 		}
