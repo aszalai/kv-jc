@@ -12,14 +12,23 @@ import com.kv.jc.http.json.Submarine;
 
 public class Engine {
   public static final Random r = new Random(1234567890);
-  public static final int distToSlow = 75;
+  public static int wallDistance = 80;
+  public static int islandDistance = 150;
+  public static int torpedoDistance = 100;
+  public static int submarineDistance = 50;
+  
   public static Position[] idle;
   public static List<Action> getActions(Game game) {
+    wallDistance = game.getMapConfiguration().getMaxSpeed() / game.getMapConfiguration().getMaxAccelerationPerRound() * game.getMapConfiguration().getMaxSpeed();
+    islandDistance = game.getMapConfiguration().getIslandSize() + game.getMapConfiguration().getTorpedoExplosionRadius() + wallDistance;
+    torpedoDistance = game.getMapConfiguration().getTorpedoExplosionRadius() * 3;
+    submarineDistance = game.getMapConfiguration().getSonarRange() * 2;
+    
     if (idle == null || game.getRound() % 20 == 0) {
       idle = new Position[game.getSubmarines().size()];
       for (int i = 0; i < idle.length; i++) {
         idle[i] = new Position();
-        idle[i].setX(distToSlow + r.nextInt(game.getMapConfiguration().getWidth() - (distToSlow * 2)) + 0.0);
+        idle[i].setX((i+1) * game.getMapConfiguration().getWidth() / 4 + 0.0);
         idle[i].setY(game.getMapConfiguration().getHeight() / 2 + 0.0);
       }
     }
@@ -33,13 +42,15 @@ public class Engine {
         Shoot shoot = getShoot(game, target, submarine);
         if (shoot == null) {
           targets.add(target);
-          idle[sidx] = target.position;
-          result.add(moveTo(game, target.position, submarine));
         } else {
           result.add(shoot);
         }
-      } else {
-        result.add(moveTo(game, idle[sidx], submarine));
+        idle[sidx] = target.position;
+      }  
+      result.add(moveTo(game, idle[sidx], submarine));
+      Radar radar = getRadat(game, submarine);
+      if (radar != null) {
+        result.add(radar);
       }
       sidx++;
     }
@@ -65,21 +76,24 @@ public class Engine {
     position.setY(position.getY() / length);
   }
   
-  
+  public static Radar getRadat(Game game, Submarine submarine) {
+    if (submarine.getSonarCooldown() > 0) {
+      return null;
+    }
+    return new Radar(submarine, 0.0);
+  }
   
   public static Move moveTo(Game game, Position position, Submarine submarine) {
-    Position direction = new Position();
     //System.out.println("MOVE TO: " + position);
+    
+    Position direction = new Position();
     direction.setX(position.getX() - submarine.getPosition().getX());
     direction.setY(position.getY() - submarine.getPosition().getY());
     normalize(direction);
     double angle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
-    angle = angleCorrection(angle);
-    //angle -= submarine.getAngle();
-    //System.out.println("ANGLE: " + angle);
     double distance = getDistance(position, submarine.getPosition()) + game.getMapConfiguration().getTorpedoExplosionRadius();
     double acc = game.getMapConfiguration().getMaxAccelerationPerRound();
-    double velocity = 0.0;
+    double velocity = acc;
     if (submarine.getVelocity() / acc > distance / submarine.getVelocity() - 1) {
       velocity = -acc;
     }
@@ -87,80 +101,70 @@ public class Engine {
       velocity = acc;
     }
     
-    // TODO: adjust angle and speed by wall distance... and other objects
-    
     // close to other submarines
     for (Submarine s : game.getSubmarines()) {
       if (s.getId() != submarine.getId()) {
-        distance = getDistance(submarine.getPosition(), s.getPosition());
-        if (getDistance(submarine.getPosition(), s.getPosition()) < game.getMapConfiguration().getTorpedoExplosionRadius() * 2) {
-          System.out.println("CLOSE SUBMARINE");
+        if (getDistance(submarine.getPosition(), s.getPosition()) < submarineDistance) {
           direction.setX(s.getPosition().getX() - submarine.getPosition().getX());
           direction.setY(s.getPosition().getY() - submarine.getPosition().getY());
           normalize(direction);
-          double a = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
-          //angle = (angle - a) / 2.0;
-        }
-      }
-    }
-    //System.out.println("ANGLE: " + angle);
-    
-    // close to islands
-    for (Position island : game.getMapConfiguration().getIslandPositions()) {
-      distance = getDistance(submarine.getPosition(), island);
-      if (distance < (2 * game.getMapConfiguration().getIslandSize()) + game.getMapConfiguration().getTorpedoExplosionRadius()) {
-        direction.setX(island.getX() - submarine.getPosition().getX());
-        direction.setY(island.getY() - submarine.getPosition().getY());
-        normalize(direction);
-        double a = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
-        System.out.println("CLOSE ISLAND " + a + "\t" + angle);
-        angle = (angle - a) / 2.0;
-        if (distance < distToSlow) {
-          velocity = submarine.getVelocity() > acc ? -acc : 0.0;
+          angle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
+          System.out.println("CLOSE SUBMARINE " + submarine.getAngle() + "\t" + angle);
+          angle += 180.0;
         }
       }
     }
     
     // close to torpedo
     for (Entity torpedo : game.getTorpedos()) {
-      if (getDistance(submarine.getPosition(), torpedo.getPosition()) < game.getMapConfiguration().getTorpedoExplosionRadius() * 3) {
+      if (getDistance(submarine.getPosition(), torpedo.getPosition()) < torpedoDistance) {
         direction.setX(torpedo.getPosition().getX() - submarine.getPosition().getX());
         direction.setY(torpedo.getPosition().getY() - submarine.getPosition().getY());
         normalize(direction);
-        double a = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
-        System.out.println("CLOSE TORPEDO " + a + "\t" + angle);
-        angle = (angle - a) / 2.0;
+        angle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
+        System.out.println("CLOSE TORPEDO " + submarine.getAngle() + "\t" + angle);
+        angle += 180.0;
+      }
+    }
+    
+    // close to islands
+    for (Position island : game.getMapConfiguration().getIslandPositions()) {
+      if (getDistance(submarine.getPosition(), island) < islandDistance) {
+        direction.setX(island.getX() - submarine.getPosition().getX());
+        direction.setY(island.getY() - submarine.getPosition().getY());
+        normalize(direction);
+        angle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
+        System.out.println("CLOSE ISLAND " + submarine.getAngle() + "\t" + angle);
+        angle += 180.0;
+        if (distance < wallDistance) {
+          velocity = submarine.getVelocity() > acc ? -acc : 0.0;
+        }
       }
     }
     
     // close to walls
-    if (submarine.getPosition().getX() < distToSlow) {
-      angle /= 2.0;
-      velocity = submarine.getVelocity() > acc ? -acc : 0.0;
+    if (submarine.getPosition().getX() < wallDistance) {
       System.out.println("CLOSE LEFT WALL");
-    } else if (submarine.getPosition().getX() > game.getMapConfiguration().getWidth() - distToSlow) {
-      angle = (angle + 180) / 2.0;
+      angle = 0.0;
       velocity = submarine.getVelocity() > acc ? -acc : 0.0;
+    } else if (submarine.getPosition().getX() > game.getMapConfiguration().getWidth() - wallDistance) {
       System.out.println("CLOSE RIGHT WALL");
+      angle = 180.0;
+      velocity = submarine.getVelocity() > acc ? -acc : 0.0;
     }
-    if (submarine.getPosition().getY() < distToSlow) {
+    if (submarine.getPosition().getY() < wallDistance) {
       System.out.println("CLOSE BOTTOM WALL");
+      angle = 90.0;
       velocity = submarine.getVelocity() > acc ? -acc : 0.0;
-      angle = (angle + 90) / 2.0;
-    } else if (submarine.getPosition().getY() > game.getMapConfiguration().getHeight() - distToSlow) {
+    } else if (submarine.getPosition().getY() > game.getMapConfiguration().getHeight() - wallDistance) {
       System.out.println("CLOSE TOP WALL");
+      angle = 270.0;
       velocity = submarine.getVelocity() > acc ? -acc : 0.0;
-      angle = (angle + 270) / 2.0;
     }
     
     //System.out.println("ANGLE: " + angle);
-    //angle = submarine.getAngle() - angle;
-    angle -= submarine.getAngle();
-    // closer to turn left
-    if (angle > 180.0) {
-      angle *= -1.0;
-    }
-    //System.out.println("ANGLE: " + angle);
+    angle = getTurnAngle(submarine.getAngle(), angle);
+    
     // correct angle by max angle
     if (angle < -game.getMapConfiguration().getMaxSteeringPerRound()) {
       angle = -game.getMapConfiguration().getMaxSteeringPerRound();
@@ -169,6 +173,21 @@ public class Engine {
       angle = game.getMapConfiguration().getMaxSteeringPerRound();
     }
     return new Move(submarine, angle, velocity);
+  }
+  
+  public static double getTurnAngle(double from, double to) {
+    return getTurnAngle((int)from, (int)to);
+  }
+  
+  public static int getTurnAngle(int from, int to) {
+    int neg = (from - to) % 360;
+    int pos = ((360 - from) + to) % 360;
+   
+    if (neg < pos) {
+      return neg * -1;
+    } else {
+      return pos;
+    }
   }
   
   public static double getDistance(Position a, Position b) {
@@ -184,7 +203,7 @@ public class Engine {
       return null;
     }
     MapConfiguration mapConfig = game.getMapConfiguration();
-    double shootDistance = mapConfig.getTorpedoRange() * mapConfig.getTorpedoSpeed();
+    double shootDistance = (mapConfig.getTorpedoRange() - 1) * mapConfig.getTorpedoSpeed();
     double distanceToTarget = getDistance(submarine.getPosition(), target.position);
     
     //System.out.println("DISTANCE: " + distanceToTarget);
@@ -218,8 +237,8 @@ public class Engine {
     angle = Math.acos(angle);*/
     //System.out.println("ANGLE: " + angle);
     // check explosion distance
-    if (mapConfig.getTorpedoSpeed() * t <= mapConfig.getTorpedoExplosionRadius() ||
-        mapConfig.getTorpedoSpeed() * t > shootDistance * 0.9) {
+    if (mapConfig.getTorpedoSpeed() * t <= mapConfig.getTorpedoExplosionRadius() * 1.5 ||
+        mapConfig.getTorpedoSpeed() * t > shootDistance) {
       return null;
     }
     angle = angleCorrection(angle);

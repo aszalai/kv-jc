@@ -42,7 +42,7 @@ public class MapPanel extends JPanel {
 		cfg = game.getMapConfiguration();
 		// draw islands
 		g.setColor(COLOR_ISLAND);
-		cfg.getIslandPositions().forEach(island -> fillOval(g, island, cfg.getIslandSize()));
+		cfg.getIslandPositions().forEach(island -> fillOval(g, island, cfg.getIslandSize() * 2));
 
 		// draw submarines
 		g.setColor(COLOR_SUBMARINE);
@@ -61,7 +61,7 @@ public class MapPanel extends JPanel {
 	private void drawTorpedo(Graphics2D g, Entity torpedo) {
 		fillOval(g, torpedo.getPosition(), 5);
 		drawVector(g, torpedo.getPosition(), torpedo.getAngle(), 5);
-		drawOval(g, torpedo.getPosition(), cfg.getTorpedoRange());
+		drawOval(g, torpedo.getPosition(), cfg.getTorpedoExplosionRadius() * 2);
 	}
 
 	private void drawEnemy(Graphics2D g, Entity enemy) {
@@ -72,6 +72,7 @@ public class MapPanel extends JPanel {
 	private void drawSubmarine(Graphics2D g, Submarine submarine) {
 		fillOval(g, submarine.getPosition(), cfg.getSubmarineSize());
 		drawVector(g, submarine.getPosition(), submarine.getAngle(), cfg.getSubmarineSize());
+		drawOval(g, submarine.getPosition(), cfg.getSonarRange() * 2);
 	}
 
 	private void drawVector(Graphics2D g, Position position, Double angle, Integer baseSize) {

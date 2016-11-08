@@ -6,6 +6,7 @@ import java.util.List;
 import com.kv.jc.engine.Action;
 import com.kv.jc.engine.Engine;
 import com.kv.jc.engine.Move;
+import com.kv.jc.engine.Radar;
 import com.kv.jc.engine.Shoot;
 import com.kv.jc.http.json.Game;
 import com.kv.jc.http.json.GameStatus;
@@ -18,6 +19,7 @@ public class Main {
 	
 	public static void main(String[] args) throws IOException, InterruptedException {
 	  BASE_URL += args[0] + "/";
+	  boolean isGUI = args.length > 1;
 		ServiceController controller = ServiceController.create(BASE_URL);
 		
 		GameStatus status = GameStatus.START;
@@ -65,7 +67,7 @@ public class Main {
             if (status != GameStatus.RUNNING) {
               break;
             }
-            if (frame == null) {
+            if (isGUI && frame == null) {
             	frame = new GameFrame(game);
             	controller.addCallback(frame);
             }
@@ -83,6 +85,8 @@ public class Main {
                   controller.move(a.submarine, ((Move)a).velocity, a.angle);
                 } else if (a instanceof Shoot) {
                   controller.shoot(a.submarine, a.angle);
+                } else if (a instanceof Radar) {
+                  controller.extendSonar(a.submarine);
                 }
               }
             }
