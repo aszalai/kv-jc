@@ -95,6 +95,8 @@ public class Main {
             break;
           case ENDED: 
             run = false;
+            frame.dispose();
+            frame.setVisible(false);
             break;
           default:
             break;

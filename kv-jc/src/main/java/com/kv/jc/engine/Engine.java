@@ -41,14 +41,12 @@ public class Engine {
     for (Submarine submarine : game.getSubmarines()) {
       if (targets.size() > 0) {
         targetSeen = 0;
-        Target target = targets.remove(targets.size() - 1);
+        Target target = targets.get(targets.size() - 1);
         Shoot shoot = getShoot(game, target, submarine);
-        if (shoot == null) {
-          targets.add(target);
-        } else {
+        if (shoot != null) {
           result.add(shoot);
+          idle[sidx] = target.position;
         }
-        idle[sidx] = target.position;
       }  
       result.add(moveTo(game, idle[sidx], submarine));
       Radar radar = getRadat(game, submarine);
