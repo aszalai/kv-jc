@@ -10,7 +10,7 @@ class DisplayConfiguration {
 	boolean showSpeed = true;
 	boolean showTorpedoCooldown = true;
 
-	boolean showSonarRange = true;
+	boolean showSonarRange = false;
 	boolean showTorpedoRange = true;
 	
 }

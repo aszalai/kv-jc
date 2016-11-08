@@ -59,6 +59,7 @@ public class Engine {
   }
   
   public static List<Target> getTargets(Game game) {
+    // TODO: targets should be cached
     // TODO: identify more targets
     List<Target> targets = new LinkedList<Target>();
     for (Entity entity : game.getEnemies()) {
@@ -85,7 +86,7 @@ public class Engine {
   }
   
   public static Move moveTo(Game game, Position position, Submarine submarine) {
-    System.out.println("MOVE TO: " + submarine.getId() + "\t" + position);
+    System.out.println("MOVE " + submarine.getId() + " TO: " + position);
     
     Position direction = new Position();
     direction.setX(position.getX() - submarine.getPosition().getX());
@@ -141,15 +142,6 @@ public class Engine {
     }
     
     // close to walls
-    if (submarine.getPosition().getX() < wallDistance) {
-      System.out.println("CLOSE LEFT WALL");
-      angle = 0.0;
-      velocity = submarine.getVelocity() > acc ? -acc : 0.0;
-    } else if (submarine.getPosition().getX() > game.getMapConfiguration().getWidth() - wallDistance) {
-      System.out.println("CLOSE RIGHT WALL");
-      angle = 180.0;
-      velocity = submarine.getVelocity() > acc ? -acc : 0.0;
-    }
     if (submarine.getPosition().getY() < wallDistance) {
       System.out.println("CLOSE BOTTOM WALL");
       angle = 90.0;
@@ -157,6 +149,15 @@ public class Engine {
     } else if (submarine.getPosition().getY() > game.getMapConfiguration().getHeight() - wallDistance) {
       System.out.println("CLOSE TOP WALL");
       angle = 270.0;
+      velocity = submarine.getVelocity() > acc ? -acc : 0.0;
+    }
+    if (submarine.getPosition().getX() < wallDistance) {
+      System.out.println("CLOSE LEFT WALL");
+      angle = 0.0;
+      velocity = submarine.getVelocity() > acc ? -acc : 0.0;
+    } else if (submarine.getPosition().getX() > game.getMapConfiguration().getWidth() - wallDistance) {
+      System.out.println("CLOSE RIGHT WALL");
+      angle = 180.0;
       velocity = submarine.getVelocity() > acc ? -acc : 0.0;
     }
     
