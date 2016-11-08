@@ -80,7 +80,7 @@ public class Main {
               List<Action> actions = Engine.getActions(game);
               // TODO: do not make multiple actions in the same round
               for (Action a : actions) {
-                System.out.println("ACTION: " + a);
+                //System.out.println("ACTION: " + a);
                 if (a instanceof Move) {
                   controller.move(a.submarine, ((Move)a).velocity, a.angle);
                 } else if (a instanceof Shoot) {
