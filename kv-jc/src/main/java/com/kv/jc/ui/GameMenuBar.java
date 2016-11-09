@@ -14,13 +14,13 @@ public class GameMenuBar extends JMenuBar {
 
 	private static final long serialVersionUID = 565444334296047059L;
 
-	private final Game game;
+	//private final Game game;
 	private final DisplayConfiguration cfg;
 	private final ServiceCallback callback;
 
 	public GameMenuBar(Game game, DisplayConfiguration cfg, ServiceCallback callback) {
 		super();
-		this.game = game;
+		//this.game = game;
 		this.cfg = cfg;
 		this.callback = callback;
 

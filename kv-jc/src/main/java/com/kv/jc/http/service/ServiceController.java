@@ -162,7 +162,6 @@ public final class ServiceController {
 	}
 
 	// FIXME Minket is messzebbrol latnak!!!
-	@Deprecated
 	public boolean extendSonar(Submarine submarine) throws ServiceCallException {
 		if (submarine.getSonarCooldown() > 0) {
 			return false;
