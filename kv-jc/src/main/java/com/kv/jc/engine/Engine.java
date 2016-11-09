@@ -16,7 +16,8 @@ public class Engine {
   public static double islandDistance = 150;
   public static double torpedoDistance = 100;
   public static double submarineDistance = 50;
-  public static int targetSeen = 5;
+  public static int targetSeen = 7;
+  public static int followTarget = 7;
   
   public static Position[] idle;
   public static List<Action> getActions(Game game) {
@@ -26,12 +27,13 @@ public class Engine {
     submarineDistance = game.getMapConfiguration().getSonarRange() * 1.5;
     
     targetSeen ++;
-    if (idle == null || targetSeen > 5) {
+    if (idle == null || targetSeen > followTarget) {
       idle = new Position[game.getSubmarines().size()];
       for (int i = 0; i < idle.length; i++) {
         idle[i] = new Position();
         idle[i].setX((i*2 + 1) * game.getMapConfiguration().getWidth() / 4 + 0.0);
-        idle[i].setY((i*2 + 1) * game.getMapConfiguration().getHeight() / 4 + 0.0);
+        //idle[i].setY((i*2 + 1) * game.getMapConfiguration().getHeight() / 4 + 0.0);
+        idle[i].setY(game.getMapConfiguration().getHeight() / 2 + 0.0);
       }
     }
     List<Action> result = new LinkedList<Action>();
@@ -96,7 +98,7 @@ public class Engine {
     double distance = getDistance(position, submarine.getPosition()) + game.getMapConfiguration().getTorpedoExplosionRadius();
     double acc = game.getMapConfiguration().getMaxAccelerationPerRound();
     double velocity = acc;
-    if (distance < wallDistance) {
+    if (distance < wallDistance && submarine.getVelocity() > game.getMapConfiguration().getMaxSpeed() - game.getMapConfiguration().getMaxAccelerationPerRound()) {
       velocity = submarine.getVelocity() > acc ? -acc : 0.0;
     }
     
@@ -132,9 +134,15 @@ public class Engine {
         direction.setX(island.getX() - submarine.getPosition().getX());
         direction.setY(island.getY() - submarine.getPosition().getY());
         normalize(direction);
-        angle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
+        double islandAngle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
+        double a = Math.abs(getTurnAngle(submarine.getAngle(), islandAngle));
         System.out.println("CLOSE ISLAND AT: " + island);
-        angle += 180.0;
+        //System.out.println("CLOSE ISLAND AT: " + island + "\t" + islandAngle);
+        //System.out.println("SM: " + submarine.getId() + "\t" + submarine.getPosition() + "\t" + submarine.getAngle());
+        //System.out.println("TURN ANGLE: " + a);
+        if (a < 95.0) {
+          angle = islandAngle + 180.0;
+        }
         if (distance < wallDistance) {
           velocity = submarine.getVelocity() > acc ? -acc : 0.0;
         }
@@ -161,7 +169,6 @@ public class Engine {
       velocity = submarine.getVelocity() > acc ? -acc : 0.0;
     }
     
-    //System.out.println("ANGLE: " + angle);
     angle = getTurnAngle(submarine.getAngle(), angle);
     
     // correct angle by max angle
@@ -171,22 +178,19 @@ public class Engine {
     if (angle > game.getMapConfiguration().getMaxSteeringPerRound()) {
       angle = game.getMapConfiguration().getMaxSteeringPerRound();
     }
+    //System.out.println("ANGLE: " + angle);
     return new Move(submarine, angle, velocity);
   }
   
   public static double getTurnAngle(double from, double to) {
-    return getTurnAngle((int)from, (int)to);
-  }
-  
-  public static int getTurnAngle(int from, int to) {
-    int neg = (from - to) % 360;
-    int pos = ((360 - from) + to) % 360;
-   
-    if (neg < pos) {
-      return neg * -1;
-    } else {
-      return pos;
+    double result = to - from;
+    if (result < 0.0) {
+      result += 360.0;
     }
+    if (result > 180.0) {
+      result -= 360.0;
+    }
+    return result;
   }
   
   public static double getDistance(Position a, Position b) {
@@ -236,7 +240,7 @@ public class Engine {
     angle = Math.acos(angle);*/
     //System.out.println("ANGLE: " + angle);
     // check explosion distance
-    if (mapConfig.getTorpedoSpeed() * t <= mapConfig.getTorpedoExplosionRadius() * 1.5 ||
+    if (mapConfig.getTorpedoSpeed() * t < mapConfig.getTorpedoExplosionRadius() * 2 ||
         mapConfig.getTorpedoSpeed() * t > shootDistance) {
       return null;
     }
