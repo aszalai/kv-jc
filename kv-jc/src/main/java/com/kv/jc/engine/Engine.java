@@ -16,8 +16,8 @@ public class Engine {
   public static double islandDistance = 150;
   public static double torpedoDistance = 100;
   public static double submarineDistance = 50;
-  public static int targetSeen = 7;
-  public static int followTarget = 7;
+  public static int targetSeen = 5;
+  public static int followTarget = 5;
   
   public static Position[] idle;
   public static List<Action> getActions(Game game) {
@@ -44,6 +44,16 @@ public class Engine {
       if (targets.size() > 0) {
         targetSeen = 0;
         Target target = targets.get(targets.size() - 1);
+        double mindist = getDistance(submarine.getPosition(), target.position);
+        // find closet target
+        for (Target t : targets) {
+          double dist = getDistance(submarine.getPosition(), target.position);
+          if (dist < mindist) {
+            mindist = dist;
+            target = t;
+          }
+        }
+        
         Shoot shoot = getShoot(game, target, submarine);
         if (shoot != null) {
           result.add(shoot);
@@ -118,7 +128,11 @@ public class Engine {
     
     // close to torpedo
     for (Entity torpedo : game.getTorpedos()) {
-      if (getDistance(submarine.getPosition(), torpedo.getPosition()) < torpedoDistance) {
+      double mindist = game.getMapConfiguration().getWidth();
+      double dist = getDistance(submarine.getPosition(), torpedo.getPosition());
+      // find the closet torpedo
+      if (dist < torpedoDistance && dist < mindist) {
+        mindist = dist;
         direction.setX(torpedo.getPosition().getX() - submarine.getPosition().getX());
         direction.setY(torpedo.getPosition().getY() - submarine.getPosition().getY());
         normalize(direction);
@@ -240,7 +254,7 @@ public class Engine {
     angle = Math.acos(angle);*/
     //System.out.println("ANGLE: " + angle);
     // check explosion distance
-    if (mapConfig.getTorpedoSpeed() * t < mapConfig.getTorpedoExplosionRadius() * 2 ||
+    if (mapConfig.getTorpedoSpeed() * t < mapConfig.getTorpedoExplosionRadius() * 1.5 ||
         mapConfig.getTorpedoSpeed() * t > shootDistance) {
       return null;
     }
