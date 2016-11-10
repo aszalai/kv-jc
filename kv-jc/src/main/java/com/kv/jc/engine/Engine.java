@@ -110,8 +110,13 @@ public class Engine {
     double distance = getDistance(position, submarine.getPosition()) + game.getMapConfiguration().getTorpedoExplosionRadius();
     double acc = game.getMapConfiguration().getMaxAccelerationPerRound();
     double velocity = acc;
+    
+    // close target let go
     if (distance < wallDistance && submarine.getVelocity() > game.getMapConfiguration().getMaxSpeed() - game.getMapConfiguration().getMaxAccelerationPerRound()) {
       velocity = submarine.getVelocity() > acc ? -acc : 0.0;
+    }
+    if (distance < game.getMapConfiguration().getTorpedoExplosionRadius()) {
+      angle += 180.0;
     }
     
     // close to other submarines
