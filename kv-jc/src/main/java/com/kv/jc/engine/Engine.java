@@ -34,8 +34,8 @@ public class Engine {
       for (int i = 0; i < idle.length; i++) {
         idle[i] = new Position();
         idle[i].setX((i*2 + 1) * game.getMapConfiguration().getWidth() / 4 + 0.0);
-        idle[i].setY((r.nextInt(3) + 1) * game.getMapConfiguration().getHeight() / 4 + 0.0);
-        //idle[i].setY(game.getMapConfiguration().getHeight() / 2 + 0.0);
+        //idle[i].setY((r.nextInt(3) + 1) * game.getMapConfiguration().getHeight() / 4 + 0.0);
+        idle[i].setY(game.getMapConfiguration().getHeight() / 2 + 0.0);
       }
     }
     List<Action> result = new LinkedList<Action>();
@@ -143,15 +143,22 @@ public class Engine {
         direction.setX(torpedo.getPosition().getX() - submarine.getPosition().getX());
         direction.setY(torpedo.getPosition().getY() - submarine.getPosition().getY());
         normalize(direction);
-        angle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
+        double torpedoAngle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
+        double a = Math.abs(getTurnAngle(submarine.getAngle(), torpedoAngle));
         System.out.println("CLOSE TORPEDO AT: " + torpedo.getPosition());
-        angle += 180.0;
+        if (a < 80.0) {
+          angle = torpedoAngle + 180.0;
+        }
+        //angle += 180.0;
       }
     }
     
     // close to islands
     for (Position island : game.getMapConfiguration().getIslandPositions()) {
-      if (getDistance(submarine.getPosition(), island) < islandDistance) {
+      double mindist = game.getMapConfiguration().getWidth();
+      double dist = getDistance(submarine.getPosition(), island);
+      if (dist < islandDistance && dist < mindist) {
+        mindist = dist;
         direction.setX(island.getX() - submarine.getPosition().getX());
         direction.setY(island.getY() - submarine.getPosition().getY());
         normalize(direction);
