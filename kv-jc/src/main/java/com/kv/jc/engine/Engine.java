@@ -33,7 +33,8 @@ public class Engine {
       }
       for (int i = 0; i < idle.length; i++) {
         idle[i] = new Position();
-        idle[i].setX((i*2 + 1) * game.getMapConfiguration().getWidth() / 4 + 0.0);
+        //idle[i].setX((i + 1) * game.getMapConfiguration().getWidth() / (idle.length + 2) + 0.0);
+        idle[i].setX(game.getMapConfiguration().getWidth() / 2 + 0.0);
         //idle[i].setY((r.nextInt(3) + 1) * game.getMapConfiguration().getHeight() / 4 + 0.0);
         idle[i].setY(game.getMapConfiguration().getHeight() / 2 + 0.0);
       }
@@ -115,14 +116,17 @@ public class Engine {
     if (distance < wallDistance && submarine.getVelocity() > game.getMapConfiguration().getMaxSpeed() - game.getMapConfiguration().getMaxAccelerationPerRound()) {
       velocity = submarine.getVelocity() > acc ? -acc : 0.0;
     }
-    if (distance < game.getMapConfiguration().getTorpedoExplosionRadius()) {
+    if (distance < game.getMapConfiguration().getTorpedoExplosionRadius() * 2) {
       angle += 180.0;
     }
     
     // close to other submarines
     for (Submarine s : game.getSubmarines()) {
       if (s.getId() != submarine.getId()) {
-        if (getDistance(submarine.getPosition(), s.getPosition()) < submarineDistance) {
+        double mindist = game.getMapConfiguration().getWidth();
+        double dist = getDistance(submarine.getPosition(), s.getPosition());
+        if (dist < submarineDistance && dist < mindist) {
+          mindist = dist;
           direction.setX(s.getPosition().getX() - submarine.getPosition().getX());
           direction.setY(s.getPosition().getY() - submarine.getPosition().getY());
           normalize(direction);
@@ -143,13 +147,15 @@ public class Engine {
         direction.setX(torpedo.getPosition().getX() - submarine.getPosition().getX());
         direction.setY(torpedo.getPosition().getY() - submarine.getPosition().getY());
         normalize(direction);
-        double torpedoAngle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
+        //double torpedoAngle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
+        double torpedoAngle = torpedo.getAngle();
         double a = Math.abs(getTurnAngle(submarine.getAngle(), torpedoAngle));
         System.out.println("CLOSE TORPEDO AT: " + torpedo.getPosition());
         if (a < 80.0) {
-          angle = torpedoAngle + 180.0;
+          angle = torpedoAngle + 90.0;
+        } else if (a > 100.0) {
+          angle = torpedoAngle - 90.0;
         }
-        //angle += 180.0;
       }
     }
     
