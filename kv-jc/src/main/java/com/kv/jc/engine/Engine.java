@@ -16,14 +16,14 @@ public class Engine {
   public static double islandDistance = 150;
   public static double torpedoDistance = 100;
   public static double submarineDistance = 50;
-  public static int targetSeen = 5;
+  public static int targetSeen = 5; // 10
   public static int followTarget = 5;
   
   public static Position[] idle;
   public static List<Action> getActions(Game game) {
     wallDistance = game.getMapConfiguration().getMaxSpeed() / game.getMapConfiguration().getMaxAccelerationPerRound() * game.getMapConfiguration().getMaxSpeed();
     islandDistance = game.getMapConfiguration().getIslandSize() + game.getMapConfiguration().getTorpedoExplosionRadius() + wallDistance;
-    torpedoDistance = game.getMapConfiguration().getTorpedoExplosionRadius() * 3;
+    torpedoDistance = game.getMapConfiguration().getTorpedoExplosionRadius() * 1.5;
     submarineDistance = game.getMapConfiguration().getSonarRange() * 1.5;
     
     targetSeen ++;
@@ -114,7 +114,7 @@ public class Engine {
     
     // close target let go
     if (distance < wallDistance && submarine.getVelocity() > game.getMapConfiguration().getMaxSpeed() - game.getMapConfiguration().getMaxAccelerationPerRound()) {
-      velocity = submarine.getVelocity() > acc ? -acc : 0.0;
+      velocity = -acc;
     }
     if (distance < game.getMapConfiguration().getTorpedoExplosionRadius() * 2) {
       angle += 180.0;
@@ -142,20 +142,27 @@ public class Engine {
       double mindist = game.getMapConfiguration().getWidth();
       double dist = getDistance(submarine.getPosition(), torpedo.getPosition());
       // find the closet torpedo
-      if (dist < torpedoDistance && dist < mindist) {
+      if (dist < mindist) {
         mindist = dist;
         direction.setX(torpedo.getPosition().getX() - submarine.getPosition().getX());
         direction.setY(torpedo.getPosition().getY() - submarine.getPosition().getY());
         normalize(direction);
-        //double torpedoAngle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
+        double torpedoToAngle = Math.atan2(direction.getY(), direction.getX()) / Math.PI * 180.0;
         double torpedoAngle = torpedo.getAngle();
-        double a = Math.abs(getTurnAngle(submarine.getAngle(), torpedoAngle));
+        double a = getTurnAngle(submarine.getAngle(), torpedoAngle);
         System.out.println("CLOSE TORPEDO AT: " + torpedo.getPosition());
-        if (a < 80.0) {
-          angle = torpedoAngle + 90.0;
-        } else if (a > 100.0) {
-          angle = torpedoAngle - 90.0;
-        }
+        angle = torpedoToAngle + 180.0;
+        /*if (Math.abs(a) < 20.0 || Math.abs(a) > 160) {
+          if (a < 0.0) { 
+            angle = torpedoAngle + 90.0;
+          } else {
+            angle = torpedoAngle - 90.0;
+          }
+        }*/
+        // slow down if a torpedo is close
+        /*if (dist < torpedoDistance) {
+          velocity = -acc;
+        }*/
       }
     }
     
@@ -178,7 +185,7 @@ public class Engine {
           angle = islandAngle + 180.0;
         }
         if (distance < wallDistance) {
-          velocity = submarine.getVelocity() > acc ? -acc : 0.0;
+          velocity = -acc;
         }
       }
     }
@@ -203,7 +210,7 @@ public class Engine {
       velocity = submarine.getVelocity() > (game.getMapConfiguration().getMaxSpeed() + acc) * ((game.getMapConfiguration().getWidth() - submarine.getPosition().getX()) / wallDistance) ? -acc : 0.0;
     }
     // never stop
-    velocity = velocity < acc ? acc : velocity;
+    velocity = submarine.getVelocity() <= acc ? acc : velocity;
     
     angle = getTurnAngle(submarine.getAngle(), angle);
     
