@@ -37,6 +37,11 @@ public final class IdlePositionProvider {
 		initialize();
 	}
 
+	public void updateIdlePositions() {
+		final Position idlePosition = getIdlePosition();
+		game.getSubmarines().forEach(submarine -> submarine.setIdle(idlePosition));
+	}
+
 	public Position getIdlePosition() {
 		if (currentIdleSector == null) {
 			currentIdleSector = getNextIdleSector();
@@ -74,14 +79,18 @@ public final class IdlePositionProvider {
 
 	private void initialize() {
 		int number = 0;
-		for (int width = 0; width <= game.getMapConfiguration().getWidth(); width += sectorWidth) {
-			for (int height = 0; height <= game.getMapConfiguration().getHeight(); height += sectorHeight) {
-				Sector sector = new Sector(number++, width, height);
+		int x = 0;
+		for (int w = 0; w < HORIZONTAL_SECTORS; w++) {
+			int y = 0;
+			for (int h = 0; h < VERTICAL_SECTORS; h++) {
+				Sector sector = new Sector(number++, x, y);
 				if (!sector.containsSubmarine()) {
 					nonVisitedSectors.add(sector);
 				}
 				sectors.add(sector);
+				y += sectorHeight;
 			}
+			x += sectorWidth;
 		}
 	}
 
