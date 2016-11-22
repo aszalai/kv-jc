@@ -77,8 +77,8 @@ public final class ServiceController {
 		return call(gameService.getGameList()).getGames();
 	}
 
-	public Long createGame() throws ServiceCallException {
-		return call(gameService.createGame()).getId();
+	public void createGame() throws ServiceCallException {
+		call(gameService.createGame());
 	}
 
 	public void joinGame(long gameId) throws ServiceCallException {

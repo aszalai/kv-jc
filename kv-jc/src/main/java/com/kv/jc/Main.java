@@ -40,7 +40,7 @@ public class Main {
 					System.out.println("GAMES: " + games);
 					if (games.size() == 0) {
 						System.out.println("CREATE GAME");
-						gameId = controller.createGame();
+						controller.createGame();
 					} else {
 						gameId = games.get(0);
 					}
@@ -53,6 +53,11 @@ public class Main {
 					System.out.println("GAMEID: " + gameId);
 					game = controller.gameInfo(gameId);
 					System.out.println(game);
+					if (game == null) {
+						status = GameStatus.START;
+						gameId = -1;
+						break;
+					}
 					sleepTime = game.getMapConfiguration().getRoundLength() / 2;
 					if (game.getStatus() == GameStatus.WAITING) {
 						// join the game
