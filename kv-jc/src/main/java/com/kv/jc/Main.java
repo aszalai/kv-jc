@@ -71,6 +71,7 @@ public class Main {
 					controller.updateState(game);
 					status = game.getStatus();
 					if (status != GameStatus.RUNNING) {
+					  status = GameStatus.START;
 						break;
 					}
 					if (isGUI && frame == null) {
@@ -86,7 +87,7 @@ public class Main {
 					  round = game.getRound();
 						List<Action> actions = Engine.getActions(game);
 						for (Action a : actions) {
-							// System.out.println("ACTION: " + a);
+							System.out.println("ACTION: " + a);
 							try {
 								if (a instanceof Move) {
 									controller.move(a.submarine, ((Move) a).velocity, a.angle);

@@ -15,6 +15,7 @@ import com.kv.jc.http.json.Submarine;
 public class Engine {
   public static final Random r = new Random(1234567890);
   public static double wallDistance = 80;
+  public static double wallTurnDistance = 100;
   public static double islandDistance = 150;
   public static double torpedoDistance = 100;
   public static double submarineDistance = 50;
@@ -25,7 +26,7 @@ public class Engine {
   public static Position[] idle;
   public static List<Action> getActions(Game game) {
     wallDistance = (game.getMapConfiguration().getMaxSpeed() / game.getMapConfiguration().getMaxAccelerationPerRound() + 1) * game.getMapConfiguration().getMaxSpeed();
-    // TODO: turn earlier from the wall -> sonar range
+    wallTurnDistance = game.getMapConfiguration().getSonarRange();
     islandDistance = game.getMapConfiguration().getIslandSize() + game.getMapConfiguration().getTorpedoExplosionRadius() + wallDistance;
     torpedoDistance = game.getMapConfiguration().getTorpedoExplosionRadius() * 1.5;
     submarineDistance = game.getMapConfiguration().getSonarRange() * 1.5;
@@ -81,8 +82,6 @@ public class Engine {
   }
   
   public static List<Target> getTargets(Game game) {
-    // TODO: targets should be cached
-    // TODO: identify more targets
     List<Target> targets = new LinkedList<Target>();
     for (Entity entity : game.getEnemies()) {
       Double score = scores.get(entity.getId());
@@ -171,7 +170,7 @@ public class Engine {
             angle = torpedoAngle - 90.0;
           }
         }*/
-        // slow down if a torpedo is close
+        // FIXME: slow down if a torpedo is close
         if (dist < torpedoDistance && submarine.getVelocity() > game.getMapConfiguration().getMaxSpeed() / 2) {
           velocity = -acc;
         }
@@ -203,23 +202,35 @@ public class Engine {
     }
     
     // close to walls
-    if (submarine.getPosition().getY() < wallDistance) {
-      System.out.println("CLOSE BOTTOM WALL");
+    if (submarine.getPosition().getY() < wallTurnDistance) {
+      System.out.println("TURN BOTTOM WALL");
       angle = 90.0;
-      velocity = submarine.getVelocity() > (game.getMapConfiguration().getMaxSpeed() + acc) * (submarine.getPosition().getY() / wallDistance) ? -acc : 0.0;
-    } else if (submarine.getPosition().getY() > game.getMapConfiguration().getHeight() - wallDistance) {
-      System.out.println("CLOSE TOP WALL");
+      if (submarine.getPosition().getY() < wallDistance) {
+        System.out.println("CLOSE BOTTOM WALL");
+        velocity = submarine.getVelocity() > (game.getMapConfiguration().getMaxSpeed() + acc) * (submarine.getPosition().getY() / wallDistance) ? -acc : 0.0;
+      }
+    } else if (submarine.getPosition().getY() > game.getMapConfiguration().getHeight() - wallTurnDistance) {
+      System.out.println("TURN TOP WALL");
       angle = 270.0;
-      velocity = submarine.getVelocity() > (game.getMapConfiguration().getMaxSpeed() + acc) * ((game.getMapConfiguration().getHeight() - submarine.getPosition().getY()) / wallDistance) ? -acc : 0.0;
+      if (submarine.getPosition().getY() > game.getMapConfiguration().getHeight() - wallDistance) {
+        System.out.println("CLOSE TOP WALL");
+        velocity = submarine.getVelocity() > (game.getMapConfiguration().getMaxSpeed() + acc) * ((game.getMapConfiguration().getHeight() - submarine.getPosition().getY()) / wallDistance) ? -acc : 0.0;
+      }
     }
-    if (submarine.getPosition().getX() < wallDistance) {
-      System.out.println("CLOSE LEFT WALL");
+    if (submarine.getPosition().getX() < wallTurnDistance) {
+      System.out.println("TURN LEFT WALL");
       angle = 0.0;
-      velocity = submarine.getVelocity() > (game.getMapConfiguration().getMaxSpeed() + acc) * (submarine.getPosition().getX() / wallDistance) ? -acc : 0.0;
-    } else if (submarine.getPosition().getX() > game.getMapConfiguration().getWidth() - wallDistance) {
-      System.out.println("CLOSE RIGHT WALL");
+      if (submarine.getPosition().getX() < wallDistance) {
+        System.out.println("CLOSE LEFT WALL");
+        velocity = submarine.getVelocity() > (game.getMapConfiguration().getMaxSpeed() + acc) * (submarine.getPosition().getX() / wallDistance) ? -acc : 0.0;
+      }
+    } else if (submarine.getPosition().getX() > game.getMapConfiguration().getWidth() - wallTurnDistance) {
+      System.out.println("TURN RIGHT WALL");
       angle = 180.0;
-      velocity = submarine.getVelocity() > (game.getMapConfiguration().getMaxSpeed() + acc) * ((game.getMapConfiguration().getWidth() - submarine.getPosition().getX()) / wallDistance) ? -acc : 0.0;
+      if (submarine.getPosition().getX() > game.getMapConfiguration().getWidth() - wallDistance) {
+        System.out.println("CLOSE RIGHT WALL");
+        velocity = submarine.getVelocity() > (game.getMapConfiguration().getMaxSpeed() + acc) * ((game.getMapConfiguration().getWidth() - submarine.getPosition().getX()) / wallDistance) ? -acc : 0.0;
+      }
     }
     // never stop
     velocity = submarine.getVelocity() < acc ? acc : velocity;
