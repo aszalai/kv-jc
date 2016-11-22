@@ -17,7 +17,7 @@ public class GameFrame extends JFrame implements ServiceCallback {
 	private final MapPanel mapPanel;
 
 	public GameFrame(Game game) {
-		super("KaJAVAdászok - Game ID:" + game.getId());
+		super("KaJAVAdaszok - Game ID:" + game.getId());
 		this.game = game;
 		displayConfiguration = new DisplayConfiguration();
 
