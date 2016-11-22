@@ -118,7 +118,7 @@ public class MapPanel extends JPanel {
     fillOval(g, submarine.getPosition(), cfg.getSubmarineSize());
     drawVector(g, submarine.getPosition(), submarine.getAngle(), cfg.getSubmarineSize());
     if (displayConfiguration.showSonarRange) {
-      drawOval(g, submarine.getPosition(), submarine.getSonarCooldown() > 0 ? cfg.getExtendedSonarRange() * 2 : cfg.getSonarRange() * 2);
+      drawOval(g, submarine.getPosition(), submarine.getSonarExtended() > 0 ? cfg.getExtendedSonarRange() * 2 : cfg.getSonarRange() * 2);
     }
 
     Position displayPosition = normalizeCenter(submarine.getPosition(), cfg.getSubmarineSize());
