@@ -37,6 +37,10 @@ public final class IdlePositionProvider {
 		initialize();
 	}
 
+	public Long getGameId() {
+		return game == null ? -1 : game.getId();
+	}
+
 	public void updateIdlePositions() {
 		final Position idlePosition = getIdlePosition();
 		game.getSubmarines().forEach(submarine -> submarine.setIdle(idlePosition));

@@ -5,6 +5,7 @@ import java.util.List;
 
 import com.kv.jc.engine.Action;
 import com.kv.jc.engine.Engine;
+import com.kv.jc.engine.IdlePositionProvider;
 import com.kv.jc.engine.Move;
 import com.kv.jc.engine.Radar;
 import com.kv.jc.engine.Shoot;
@@ -27,6 +28,7 @@ public class Main {
 		long sleepTime = 200;
 		long gameId = -1;
 		Game game = null;
+		IdlePositionProvider idlePositionProvider = null;
 		GameFrame frame = null;
 
 		int round = -1;
@@ -56,6 +58,7 @@ public class Main {
 					if (game == null) {
 						status = GameStatus.START;
 						gameId = -1;
+						idlePositionProvider = null;
 						break;
 					}
 					sleepTime = game.getMapConfiguration().getRoundLength() / 2;
@@ -68,7 +71,11 @@ public class Main {
 					break;
 				case RUNNING:
 					// get game state, send radar actions
+					if (idlePositionProvider == null || idlePositionProvider.getGameId() != game.getId()) {
+						idlePositionProvider = IdlePositionProvider.create(game);
+					}
 					controller.updateState(game);
+					idlePositionProvider.updateIdlePositions();
 					status = game.getStatus();
 					if (status != GameStatus.RUNNING) {
 					  status = GameStatus.START;
