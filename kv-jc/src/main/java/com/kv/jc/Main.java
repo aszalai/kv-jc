@@ -87,7 +87,7 @@ public class Main {
 					  round = game.getRound();
 						List<Action> actions = Engine.getActions(game);
 						for (Action a : actions) {
-							System.out.println("ACTION: " + a);
+							//System.out.println("ACTION: " + a);
 							try {
 								if (a instanceof Move) {
 									controller.move(a.submarine, ((Move) a).velocity, a.angle);
