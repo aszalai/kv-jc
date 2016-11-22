@@ -84,7 +84,6 @@ public class Main {
 
 					// send actions
 					if (game.getRound() != round) {
-					  round = game.getRound();
 						List<Action> actions = Engine.getActions(game);
 						for (Action a : actions) {
 							//System.out.println("ACTION: " + a);
@@ -103,6 +102,7 @@ public class Main {
 							}
 						}
 					}
+					round = game.getRound();
 
 					break;
 				case ENDED:
