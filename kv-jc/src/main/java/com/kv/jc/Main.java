@@ -24,7 +24,7 @@ public class Main {
 
 		GameStatus status = GameStatus.START;
 		boolean run = true;
-		long sleepTime = 100;
+		long sleepTime = 200;
 		long gameId = -1;
 		Game game = null;
 		GameFrame frame = null;

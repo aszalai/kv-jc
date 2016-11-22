@@ -2,7 +2,9 @@ package com.kv.jc.engine;
 
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
+import java.util.TreeMap;
 
 import com.kv.jc.http.json.Entity;
 import com.kv.jc.http.json.Game;
@@ -18,10 +20,12 @@ public class Engine {
   public static double submarineDistance = 50;
   public static int targetSeen = 5; // 10
   public static int followTarget = 5;
+  public static Map<Long, Double> scores = new TreeMap<Long, Double>();
   
   public static Position[] idle;
   public static List<Action> getActions(Game game) {
-    wallDistance = game.getMapConfiguration().getMaxSpeed() / game.getMapConfiguration().getMaxAccelerationPerRound() * game.getMapConfiguration().getMaxSpeed();
+    wallDistance = (game.getMapConfiguration().getMaxSpeed() / game.getMapConfiguration().getMaxAccelerationPerRound() + 1) * game.getMapConfiguration().getMaxSpeed();
+    // TODO: turn earlier from the wall -> sonar range
     islandDistance = game.getMapConfiguration().getIslandSize() + game.getMapConfiguration().getTorpedoExplosionRadius() + wallDistance;
     torpedoDistance = game.getMapConfiguration().getTorpedoExplosionRadius() * 1.5;
     submarineDistance = game.getMapConfiguration().getSonarRange() * 1.5;
@@ -35,8 +39,8 @@ public class Engine {
         idle[i] = new Position();
         //idle[i].setX((i + 1) * game.getMapConfiguration().getWidth() / (idle.length + 2) + 0.0);
         idle[i].setX(game.getMapConfiguration().getWidth() / 2 + 0.0);
-        //idle[i].setY((r.nextInt(3) + 1) * game.getMapConfiguration().getHeight() / 4 + 0.0);
-        idle[i].setY(game.getMapConfiguration().getHeight() / 2 + 0.0);
+        idle[i].setY((r.nextInt(3) + 1) * game.getMapConfiguration().getHeight() / 4 + 0.0);
+        //idle[i].setY(game.getMapConfiguration().getHeight() / 2 + 0.0);
       }
     }
     List<Action> result = new LinkedList<Action>();
@@ -47,7 +51,7 @@ public class Engine {
       if (targets.size() > 0) {
         targetSeen = 0;
         Target target = targets.get(targets.size() - 1);
-        double mindist = getDistance(submarine.getPosition(), target.position);
+        /*double mindist = getDistance(submarine.getPosition(), target.position);
         // find closet target
         for (Target t : targets) {
           double dist = getDistance(submarine.getPosition(), t.position);
@@ -55,12 +59,15 @@ public class Engine {
             mindist = dist;
             target = t;
           }
-        }
+        }*/
         
         Shoot shoot = getShoot(game, target, submarine);
         if (shoot != null) {
           result.add(shoot);
           idle[sidx] = target.position;
+          scores.put(target.id, target.score + 1.0);
+          // shoot the highest score with only one submarine
+          targets.remove(targets.size() - 1);
         }
       }  
       result.add(moveTo(game, idle[sidx], submarine));
@@ -78,7 +85,11 @@ public class Engine {
     // TODO: identify more targets
     List<Target> targets = new LinkedList<Target>();
     for (Entity entity : game.getEnemies()) {
-      targets.add(new Target(entity.getPosition(), entity.getAngle(), entity.getVelocity(), 0));
+      Double score = scores.get(entity.getId());
+      if (score == null) {
+        score = 0.0;
+      }
+      targets.add(new Target(entity.getId(), entity.getPosition(), entity.getAngle(), entity.getVelocity(), score));
     }
     return targets;
   }
@@ -152,6 +163,7 @@ public class Engine {
         double a = getTurnAngle(submarine.getAngle(), torpedoAngle);
         System.out.println("CLOSE TORPEDO AT: " + torpedo.getPosition());
         angle = torpedoToAngle + 180.0;
+        // turn orthogonal to the angle of the torpedo
         /*if (Math.abs(a) < 20.0 || Math.abs(a) > 160) {
           if (a < 0.0) { 
             angle = torpedoAngle + 90.0;
@@ -160,7 +172,7 @@ public class Engine {
           }
         }*/
         // slow down if a torpedo is close
-        /*if (dist < torpedoDistance) {
+        /*if (dist < torpedoDistance && submarine.getVelocity() > game.getMapConfiguration().getMaxSpeed() / 2) {
           velocity = -acc;
         }*/
       }
@@ -210,7 +222,7 @@ public class Engine {
       velocity = submarine.getVelocity() > (game.getMapConfiguration().getMaxSpeed() + acc) * ((game.getMapConfiguration().getWidth() - submarine.getPosition().getX()) / wallDistance) ? -acc : 0.0;
     }
     // never stop
-    velocity = submarine.getVelocity() <= acc ? acc : velocity;
+    velocity = submarine.getVelocity() < acc ? acc : velocity;
     
     angle = getTurnAngle(submarine.getAngle(), angle);
     
