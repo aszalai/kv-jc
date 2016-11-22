@@ -137,7 +137,10 @@ public class GameMenuBar extends JMenuBar {
     menu.add(hp);
     menu.add(cooldown);
     menu.addSeparator();
+    menu.add(torpedoRange);
+    menu.addSeparator();
     menu.add(sonarRange);
+    menu.add(sonarActive);
     menu.add(torpedoRange);
     return menu;
   }

@@ -4,7 +4,7 @@ public class Position {
 
 	@Override
 	public String toString() {
-		return "Position [x=" + x.intValue() + ", y=" + y.intValue() + "]";
+		return "Position [x=" + x + ", y=" + y + "]";
 	}
 
 	private Double x;
