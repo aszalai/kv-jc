@@ -1,5 +1,7 @@
 package com.kv.jc.http.json;
 
+import java.awt.Point;
+
 public class Position {
 
 	@Override
@@ -11,6 +13,13 @@ public class Position {
 	private Double y;
 
 	public Position() {
+	}
+
+	public Point getPoint() {
+		if (x == null || y == null) {
+			return null;
+		}
+		return new Point(x.intValue(), y.intValue());
 	}
 
 	public Position(Double x, Double y) {
