@@ -27,6 +27,7 @@ public class Engine {
   public static List<Action> getActions(Game game) {
     wallDistance = (game.getMapConfiguration().getMaxSpeed() / game.getMapConfiguration().getMaxAccelerationPerRound() + 1) * game.getMapConfiguration().getMaxSpeed();
     wallTurnDistance = game.getMapConfiguration().getSonarRange();
+    wallTurnDistance = wallDistance;
     islandDistance = game.getMapConfiguration().getIslandSize() + game.getMapConfiguration().getTorpedoExplosionRadius() + wallDistance;
     torpedoDistance = game.getMapConfiguration().getTorpedoExplosionRadius() * 1.5;
     submarineDistance = game.getMapConfiguration().getSonarRange() * 1.5;
