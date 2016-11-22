@@ -172,9 +172,9 @@ public class Engine {
           }
         }*/
         // slow down if a torpedo is close
-        /*if (dist < torpedoDistance && submarine.getVelocity() > game.getMapConfiguration().getMaxSpeed() / 2) {
+        if (dist < torpedoDistance && submarine.getVelocity() > game.getMapConfiguration().getMaxSpeed() / 2) {
           velocity = -acc;
-        }*/
+        }
       }
     }
     
