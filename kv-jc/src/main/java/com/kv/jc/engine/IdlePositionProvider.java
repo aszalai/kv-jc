@@ -31,7 +31,7 @@ public final class IdlePositionProvider {
 
 	private IdlePositionProvider(Game game) {
 		this.game = game;
-		torpedoRange = game.getMapConfiguration().getTorpedoRange();
+		torpedoRange = game.getMapConfiguration().getTorpedoExplosionRadius();
 		sectorWidth = game.getMapConfiguration().getWidth() / HORIZONTAL_SECTORS;
 		sectorHeight = game.getMapConfiguration().getHeight() / VERTICAL_SECTORS;
 		initialize();
