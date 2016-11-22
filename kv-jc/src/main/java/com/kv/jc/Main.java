@@ -71,7 +71,7 @@ public class Main {
 					break;
 				case RUNNING:
 					// get game state, send radar actions
-					if (idlePositionProvider == null || idlePositionProvider.getGameId() != game.getId()) {
+					if (idlePositionProvider == null || !idlePositionProvider.getGameId().equals(game.getId())) {
 						idlePositionProvider = IdlePositionProvider.create(game);
 					}
 					controller.updateState(game);
