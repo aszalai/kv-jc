@@ -83,7 +83,7 @@ public class Main {
 					System.out.println("round: " + game.getRound() + "\n" + game.getScores());
 
 					// send actions
-					if (game.getRound() != round) {
+					if (game.getRound() != round && game.getRound() > 10) {
 						List<Action> actions = Engine.getActions(game);
 						for (Action a : actions) {
 							//System.out.println("ACTION: " + a);
