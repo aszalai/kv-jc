@@ -204,4 +204,5 @@ public class MapPanel extends JPanel {
   private String getSonarActive(Integer active) {
     return "Sonar: " + active;
   }
+  
 }
