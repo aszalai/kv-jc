@@ -36,13 +36,18 @@ public class Engine {
       if (idle == null) {
         idle = new Position[game.getSubmarines().size()];
       }
-      for (int i = 0; i < idle.length; i++) {
+      int smidx = 0;
+      for (Submarine s : game.getSubmarines()) {
+        idle[smidx] = s.getIdle();
+        smidx ++;
+      }
+      /*for (int i = 0; i < idle.length; i++) {
         idle[i] = new Position();
         //idle[i].setX((i + 1) * game.getMapConfiguration().getWidth() / (idle.length + 2) + 0.0);
         idle[i].setX(game.getMapConfiguration().getWidth() / 2 + 0.0);
         idle[i].setY((r.nextInt(3) + 1) * game.getMapConfiguration().getHeight() / 4 + 0.0);
         //idle[i].setY(game.getMapConfiguration().getHeight() / 2 + 0.0);
-      }
+      }*/
     }
     List<Action> result = new LinkedList<Action>();
     List<Target> targets = getTargets(game);
@@ -66,9 +71,12 @@ public class Engine {
         if (shoot != null) {
           result.add(shoot);
           idle[sidx] = target.position;
+          
           scores.put(target.id, target.score + 1.0);
           // shoot the highest score with only one submarine
           targets.remove(targets.size() - 1);
+        } else {
+          idle[sidx] = submarine.getIdle();
         }
       }  
       result.add(moveTo(game, idle[sidx], submarine));
