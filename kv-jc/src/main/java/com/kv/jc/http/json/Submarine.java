@@ -15,6 +15,7 @@ public class Submarine {
 
 	// transient fields
 	private transient Long gameId;
+	private transient Position idle = new Position();
 
 	public Long getId() {
 		return id;
@@ -88,11 +89,26 @@ public class Submarine {
 		this.gameId = gameId;
 	}
 
-  @Override
-  public String toString() {
-    return "Submarine [id=" + id + ", position=" + position + ", velocity=" + velocity + ", angle=" + angle + ", hp="
-        + hp + ", sonarCooldown=" + sonarCooldown + ", torpedoCooldown=" + torpedoCooldown + ", sonarExtended="
-        + sonarExtended + "]";
-  }
+	public Position getIdle() {
+		return idle;
+	}
+
+	public void setIdle(Position idle) {
+		this.idle = idle;
+	}
+
+	public void idleTo(Double x, Double y) {
+		if (idle == null) {
+			idle = new Position();
+		}
+		idle.setX(x);
+		idle.setY(y);
+	}
+
+	@Override
+	public String toString() {
+		return "Submarine [id=" + id + ", position=" + position + ", velocity=" + velocity + ", angle=" + angle + ", hp=" + hp + ", sonarCooldown=" + sonarCooldown
+				+ ", torpedoCooldown=" + torpedoCooldown + ", sonarExtended=" + sonarExtended + ", gameId=" + gameId + ", idle=" + idle + "]";
+	}
 
 }
